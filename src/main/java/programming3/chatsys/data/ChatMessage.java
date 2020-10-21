@@ -29,6 +29,12 @@ public class ChatMessage {
         this.timestamp = timestamp;
         this.message = message;
     }
+    public ChatMessage() {
+        this.id = -1;
+        this.userName = "";
+        this.timestamp = null;
+        this.message = "";
+    }
 
     public int getId() {
         return id;
@@ -75,16 +81,11 @@ public class ChatMessage {
     }
 
     public void save(File file) {
-        PrintWriter pw = null;
-        try {
-            pw = new PrintWriter(new OutputStreamWriter(
-                    new FileOutputStream(file), StandardCharsets.UTF_8));
+        try(BufferedWriter pw = new BufferedWriter (new OutputStreamWriter(
+                new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
             pw.write(this.format());
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            assert pw != null;
-            pw.close();
         }
     }
 

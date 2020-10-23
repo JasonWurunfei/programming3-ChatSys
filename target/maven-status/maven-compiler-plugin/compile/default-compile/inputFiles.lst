@@ -1,2 +1,7 @@
-D:\Study\OULU\programming3\exercise\src\main\java\programming3\App.java
+D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\cli\SendMessagesAuthentication.java
+D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\data\Database.java
+D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\cli\ReadMessages.java
+D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\cli\SendMessages.java
+D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\cli\RegisterUser.java
+D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\data\User.java
 D:\Study\OULU\programming3\exercise\src\main\java\programming3\chatsys\data\ChatMessage.java

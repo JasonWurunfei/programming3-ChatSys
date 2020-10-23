@@ -2,23 +2,24 @@ package programming3.chatsys.cli;
 
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.Database;
+import programming3.chatsys.data.User;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SendMessages {
+public class SendMessagesAuthentication {
     public static void main(String[] args) {
-        String chatMsgDBPath = ".\\chatMessageDatabase.txt";
+        String userDBPath = "./UserDatabase.txt";
 
         // Ask for user name.
         String pattern = "^[\\w]+$";
         Pattern regex = Pattern.compile(pattern);
         Scanner input = new Scanner(System.in);
-
 
         System.out.print("Enter your user name >");
         String username = input.nextLine();
@@ -30,11 +31,24 @@ public class SendMessages {
             matcher = regex.matcher(username);
         }
 
+        System.out.print("Enter your password >");
+        String password = input.nextLine();
+
+        // Authentication
+        Database db = new Database(userDBPath);
+        Map<String, User> userMap = db.readUsers();
+        if (userMap.get(username) == null ||
+                !userMap.get(username).getPassword().equals(password)) {
+            System.out.println("Wrong username or password.");
+            return;
+        }
+
         // set last id
+        String chatMsgDBPath = ".\\chatMessageDatabase.txt";
         File file = new File(chatMsgDBPath);
         int last_id = 0;
         if(file.exists() && file.length() != 0) {
-            Database db = new Database(chatMsgDBPath);
+            db = new Database(chatMsgDBPath);
             // get the biggest ChatMessage ID
             for (ChatMessage cm : db.readMessages()) {
                 if (last_id < cm.getId()) {

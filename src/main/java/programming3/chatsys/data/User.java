@@ -11,6 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class User {
+    public User(String userName, String fullName, String password) {
+        this.userName = userName;
+        this.fullName = fullName;
+        this.password = password;
+    }
+
     private String userName;
     private String fullName;
     private String password;

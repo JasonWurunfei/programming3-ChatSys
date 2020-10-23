@@ -27,26 +27,38 @@ public class Database {
                 }
                 msgList.add(msg);
             }
+        } catch(FileNotFoundException e) {
+            return msgList;
         } catch(IOException e) {
             e.printStackTrace();
         }
         return msgList;
     }
 
-    public Map<String, List<ChatMessage>> readUsers() {
-        List<ChatMessage> messages = this.readMessages();
-        Map<String, List<ChatMessage>> userMap = new HashMap<String, List<ChatMessage>>();
-        for (ChatMessage cm : messages) {
-            // if not in the map yet, create a new key-value pair
-            if (userMap.get(cm.getUserName()) == null) {
-                ChatMessage[] msgArray = new ChatMessage[] {cm};
-                List<ChatMessage> msgList = Arrays.asList(msgArray);
-                userMap.put(cm.getUserName(), msgList);
-            } else {
-                // append the ChatMessage object into the list
-                userMap.get(cm.getUserName()).add(cm);
+    public Map<String, User> readUsers() {
+
+        Map<String, User> userMap = new HashMap<String, User>();
+        File file = new File(this.filename);
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+
+            String line;
+            while((line = br.readLine()) != null) {
+                User user = new User();
+                try {
+                    user.parse(line);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                userMap.put(user.getUserName(), user);
             }
+        } catch(FileNotFoundException e) {
+            return userMap;
+        } catch(IOException e) {
+            e.printStackTrace();
         }
+
         return userMap;
     }
 

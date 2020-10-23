@@ -45,18 +45,18 @@ class DatabaseTest {
 
     @Test
     void readUsers() {
-        Map<String, List<ChatMessage>> userMap = new HashMap<String, List<ChatMessage>>();
-        ChatMessage[] msgArray1 = new ChatMessage[] {
-                new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
-        };
-        ChatMessage[] msgArray2 = new ChatMessage[] {
-                new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
-        };
-        List<ChatMessage> msgList1 = Arrays.asList(msgArray1);
-        List<ChatMessage> msgList2 = Arrays.asList(msgArray2);
+        File file = new File(".\\database_test.txt");
+        file.delete();
 
-        userMap.put("Jack_1", msgList1);
-        userMap.put("Ana", msgList2);
+        User user1 = new User("Jack", "JackMa", "666666");
+        User user2 = new User("Jason", "JasonWu", "123456");
+        user1.save(file);
+        user2.save(file);
+        Database db = new Database(".\\database_test.txt");
+
+        Map<String, User> userMap = new HashMap<String, User>();
+        userMap.put("Jack", user1);
+        userMap.put("Jason", user2);
         Assertions.assertEquals(userMap, db.readUsers());
     }
 

@@ -26,15 +26,31 @@ public class ChatMessageTest {
         cm.setTimestamp(time);
         cm.setUserName("Jason");
         cm.setMessage("Hello World!");
-        Assertions.assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!\r\n", cm.format());
+        try {
+            Assertions.assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!\r\n", cm.format());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void parse() {
         Timestamp time = new Timestamp(10000);
-        cm.parse("100\tJack\t"+time+"\tHAHA");
+        try {
+            cm.parse("100\tJack\t"+time+"\tHAHA");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         ChatMessage cm2 = new ChatMessage(100, "Jack", time, "HAHA");
         Assertions.assertEquals(cm2, cm);
+    }
+
+    @Test
+    public void ParseShouldThrow() {
+        Timestamp time = new Timestamp(10000);
+        Assertions.assertThrows(Exception.class, () -> {
+            cm.parse("100\tJack@\t"+time+"\tHAHA");
+        });
     }
 
     @Test

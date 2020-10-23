@@ -23,7 +23,11 @@ public class Database {
             String line;
             while((line = br.readLine()) != null) {
                 ChatMessage msg = new ChatMessage();
-                msg.parse(line);
+                try {
+                    msg.parse(line);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 msgList.add(msg);
             }
         } catch(IOException e) {

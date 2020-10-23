@@ -19,10 +19,8 @@ class DatabaseTest {
         File file = new File(".\\database_test.txt");
         ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");
         ChatMessage cm2 = new ChatMessage(2, "Ana", new Timestamp(200000), "Hello");
-        ChatMessage cm3 = new ChatMessage(3, "张三", new Timestamp(300000), "你好");
         cm1.save(file);
         cm2.save(file);
-        cm3.save(file);
         db = new Database(".\\database_test.txt");
     }
 
@@ -38,7 +36,6 @@ class DatabaseTest {
         ChatMessage[] msgArray = new ChatMessage[] {
                 new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
                 new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
-                new ChatMessage(3, "张三", new Timestamp(300000), "你好")
         };
         List<ChatMessage> msgList = Arrays.asList(msgArray);
         Assertions.assertEquals(msgList, db.readMessages());
@@ -58,7 +55,6 @@ class DatabaseTest {
         ChatMessage[] msgArray = new ChatMessage[] {
                 new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
                 new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
-                new ChatMessage(3, "张三", new Timestamp(300000), "你好"),
                 new ChatMessage(5, "Jack", new Timestamp(1000000), "Hello World")
         };
         List<ChatMessage> msgList2 = Arrays.asList(msgArray);

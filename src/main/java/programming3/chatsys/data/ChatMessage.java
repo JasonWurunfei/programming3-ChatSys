@@ -5,6 +5,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatMessage {
     private int id;
@@ -68,14 +70,30 @@ public class ChatMessage {
         this.message = message;
     }
 
-    public String format() {
+    public String format() throws Exception {
+        if ((this.userName).contains("\n")) {
+            throw new Exception("can not have '\\n' in the userName field.");
+        }
+        if ((this.message).contains("\n")) {
+            throw new Exception("can not have '\\n' in the message field.");
+        }
         return this.id+"\t"+this.userName+"\t"+this.timestamp+"\t"+this.message+"\r\n";
     }
 
-    public void parse(String formatted) {
+    public void parse(String formatted) throws Exception {
         String[] data = formatted.split("\t");
         this.id = Integer.parseInt(data[0]);
-        this.userName = data[1];
+        String userName = data[1];
+
+        String pattern = "^\\w+$";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(userName);
+        if (matcher.find()) {
+            this.userName = matcher.group(0);
+        } else {
+            throw new Exception("Username can only contain letters, numbers and the underscore");
+        }
+
         this.timestamp = Timestamp.valueOf(data[2]);
         this.message = data[3];
     }
@@ -85,6 +103,8 @@ public class ChatMessage {
                 new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
             pw.write(this.format());
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

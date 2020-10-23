@@ -1,11 +1,8 @@
 package programming3.chatsys.data;
 
-import org.junit.jupiter.api.Assertions;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Database {
     private String filename;
@@ -34,6 +31,23 @@ public class Database {
             e.printStackTrace();
         }
         return msgList;
+    }
+
+    public Map<String, List<ChatMessage>> readUsers() {
+        List<ChatMessage> messages = this.readMessages();
+        Map<String, List<ChatMessage>> userMap = new HashMap<String, List<ChatMessage>>();
+        for (ChatMessage cm : messages) {
+            // if not in the map yet, create a new key-value pair
+            if (userMap.get(cm.getUserName()) == null) {
+                ChatMessage[] msgArray = new ChatMessage[] {cm};
+                List<ChatMessage> msgList = Arrays.asList(msgArray);
+                userMap.put(cm.getUserName(), msgList);
+            } else {
+                // append the ChatMessage object into the list
+                userMap.get(cm.getUserName()).add(cm);
+            }
+        }
+        return userMap;
     }
 
     public void addMessage(ChatMessage msg) throws Exception {

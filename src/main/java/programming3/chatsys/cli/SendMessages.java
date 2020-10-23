@@ -13,15 +13,14 @@ import java.util.regex.Pattern;
 public class SendMessages {
     public static void main(String[] args) {
         // Ask for user name.
-        String username = "";
-        String pattern = "^\\w+$";
+        String pattern = "^[\\w]+$";
         Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(username);
         Scanner input = new Scanner(System.in);
 
 
         System.out.print("Enter your user name >");
-        username = input.nextLine();
+        String username = input.nextLine();
+        Matcher matcher = regex.matcher(username);
         while (!matcher.find()) {
             System.out.print("Username can only contain letters, numbers and the underscore\n");
             System.out.print("Enter your user name >");

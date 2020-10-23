@@ -62,6 +62,7 @@ public class ChatMessageTest {
         cm.setUserName("Jason");
         cm.setMessage("Hello World!");
         cm.save(file);
+        Assertions.assertEquals(true, file.exists());
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String line =  br.readLine();

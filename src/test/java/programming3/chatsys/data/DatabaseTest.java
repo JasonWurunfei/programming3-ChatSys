@@ -7,7 +7,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,6 +43,22 @@ class DatabaseTest {
         Assertions.assertEquals(msgList, db.readMessages());
     }
 
+    @Test
+    void readUsers() {
+        Map<String, List<ChatMessage>> userMap = new HashMap<String, List<ChatMessage>>();
+        ChatMessage[] msgArray1 = new ChatMessage[] {
+                new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
+        };
+        ChatMessage[] msgArray2 = new ChatMessage[] {
+                new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
+        };
+        List<ChatMessage> msgList1 = Arrays.asList(msgArray1);
+        List<ChatMessage> msgList2 = Arrays.asList(msgArray2);
+
+        userMap.put("Jack_1", msgList1);
+        userMap.put("Ana", msgList2);
+        Assertions.assertEquals(userMap, db.readUsers());
+    }
 
     @Test
     void addMessage() {

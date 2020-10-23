@@ -77,7 +77,7 @@ public class ChatMessage {
         if ((this.message).contains("\n")) {
             throw new Exception("can not have '\\n' in the message field.");
         }
-        return this.id+"\t"+this.userName+"\t"+this.timestamp+"\t"+this.message+"\r\n";
+        return this.id+"\t"+this.userName+"\t"+this.timestamp+"\t"+this.message;
     }
 
     public void parse(String formatted) throws Exception {
@@ -101,9 +101,7 @@ public class ChatMessage {
     public void save(File file) {
         try(BufferedWriter pw = new BufferedWriter (new OutputStreamWriter(
                 new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
-            pw.write(this.format());
-        } catch (IOException e) {
-            e.printStackTrace();
+            pw.write(this.format()+"\r\n");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -27,7 +27,7 @@ public class ChatMessageTest {
         cm.setUserName("Jason");
         cm.setMessage("Hello World!");
         try {
-            Assertions.assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!\r\n", cm.format());
+            Assertions.assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!", cm.format());
         } catch (Exception e) {
             e.printStackTrace();
         }

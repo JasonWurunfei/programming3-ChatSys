@@ -18,18 +18,29 @@ class DatabaseTest {
 
     @BeforeEach
     void setUp() {
-        File file = new File(".\\database_test.txt");
+        db = new Database();
+        db.setChatMessageDBPath(".\\chatMessage_database_test.txt");
+        db.setUserDBPath(".\\user_database_test.txt");
+
+        File file = new File(".\\chatMessage_database_test.txt");
         ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");
         ChatMessage cm2 = new ChatMessage(2, "Ana", new Timestamp(200000), "Hello");
         cm1.save(file);
         cm2.save(file);
-        db = new Database(".\\database_test.txt");
+
+        file = new File(".\\user_database_test.txt");
+        User user1 = new User("Jack", "JackMa", "666666");
+        User user2 = new User("Jason", "JasonWu", "123456", 1);
+        user1.save(file);
+        user2.save(file);
     }
 
     @AfterEach
     void tearDown() {
         db = null;
-        File file = new File(".\\database_test.txt");
+        File file = new File(".\\chatMessage_database_test.txt");
+        file.delete();
+        file = new File(".\\user_database_test.txt");
         file.delete();
     }
 
@@ -45,15 +56,8 @@ class DatabaseTest {
 
     @Test
     void readUsers() {
-        File file = new File(".\\database_test.txt");
-        file.delete();
-
         User user1 = new User("Jack", "JackMa", "666666");
-        User user2 = new User("Jason", "JasonWu", "123456");
-        user1.save(file);
-        user2.save(file);
-        Database db = new Database(".\\database_test.txt");
-
+        User user2 = new User("Jason", "JasonWu", "123456", 1);
         Map<String, User> userMap = new HashMap<String, User>();
         userMap.put("Jack", user1);
         userMap.put("Jason", user2);
@@ -87,4 +91,23 @@ class DatabaseTest {
         });
     }
 
+    @Test
+    void getUnreadMessages() {
+        ChatMessage[] msgArray = new ChatMessage[] {
+                new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
+        };
+        List<ChatMessage> msgList = Arrays.asList(msgArray);
+        Assertions.assertEquals(msgList, db.getUnreadMessages("Jason"));
+
+        msgArray = new ChatMessage[] {
+                new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
+                new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
+        };
+        msgList = Arrays.asList(msgArray);
+        Assertions.assertEquals(msgList, db.getUnreadMessages("Jack"));
+
+        Map<String, User> userMap = db.readUsers();
+        Assertions.assertEquals(2, userMap.get("Jack").getLastReadId());
+        Assertions.assertEquals(2, userMap.get("Jason").getLastReadId());
+    }
 }

@@ -35,7 +35,7 @@ public class SendMessagesAuthentication {
         String password = input.nextLine();
 
         // Authentication
-        Database db = new Database(userDBPath);
+        Database db = new Database();
         Map<String, User> userMap = db.readUsers();
         if (userMap.get(username) == null ||
                 !userMap.get(username).getPassword().equals(password)) {
@@ -48,7 +48,6 @@ public class SendMessagesAuthentication {
         File file = new File(chatMsgDBPath);
         int last_id = 0;
         if(file.exists() && file.length() != 0) {
-            db = new Database(chatMsgDBPath);
             // get the biggest ChatMessage ID
             for (ChatMessage cm : db.readMessages()) {
                 if (last_id < cm.getId()) {

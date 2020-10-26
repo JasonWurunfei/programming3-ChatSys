@@ -31,7 +31,7 @@ public class RegisterUser {
         String fullName = input.nextLine();
         System.out.print("Enter password >");
         String password = input.nextLine();
-        Database db = new Database(userDBPath);
+        Database db = new Database();
         Map<String, User> userMap = db.readUsers();
         if (userMap.get(username) != null) {
             System.out.println("This User is already registered.");

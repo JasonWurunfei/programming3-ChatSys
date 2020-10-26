@@ -11,16 +11,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class User {
+
+    private String userName;
+    private String fullName;
+    private String password;
+    private int lastReadId;
+
     public User(String userName, String fullName, String password) {
         this.userName = userName;
         this.fullName = fullName;
         this.password = password;
     }
 
-    private String userName;
-    private String fullName;
-    private String password;
-    private int lastReadId;
+    public User(String userName, String fullName, String password, int lastReadId) {
+        this.userName = userName;
+        this.fullName = fullName;
+        this.password = password;
+        this.lastReadId = lastReadId;
+    }
+
 
     public User() {
         this.lastReadId = 0;

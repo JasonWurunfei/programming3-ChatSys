@@ -8,11 +8,10 @@ import java.util.Scanner;
 
 public class ReadMessages {
     public static void main(String[] args) {
-        String chatMsgDBPath = ".\\chatMessageDatabase.txt";
         Scanner input = new Scanner(System.in);
         System.out.print("Enter number of messages >");
         int num = Integer.parseInt(input.nextLine());
-        Database db = new Database(chatMsgDBPath);
+        Database db = new Database();
         List<ChatMessage> messages = db.readMessages();
         if (num == 0) {
             for (ChatMessage cm : messages) {

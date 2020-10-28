@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ThreadServer extends MessageQueue implements Runnable {
+public class ThreadServer extends MessageQueue {
     private int timeout = 500;
     private Database database;
     private Set<ThreadClient> clients;
@@ -19,31 +19,29 @@ public class ThreadServer extends MessageQueue implements Runnable {
         this.clients = new HashSet<>();
     }
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                ChatMessage message = this.getMessage(timeout);
-                if (message != null) {
-                    System.out.println("Server "+"receiving message > " + message.getMessage());
-                    lock.lock();
-                    int maxId = 0;
-                    for (ChatMessage chatMessage : database.readMessages()) {
-                        if (chatMessage.getId() > maxId) {
-                            maxId = chatMessage.getId();
-                        }
-                    }
-                    message.setId(maxId+1);
-                    database.addMessage(message);
-                    lock.unlock();
-                    this.forward(message);
+    public void initialize() {
+        System.out.println("Server started.");
+    }
+
+    public void handleMessage(ChatMessage message) throws Exception {
+        if (message != null) {
+            System.out.println("Server "+"receiving message > " + message.getMessage());
+            lock.lock();
+            int maxId = 0;
+            for (ChatMessage chatMessage : database.readMessages()) {
+                if (chatMessage.getId() > maxId) {
+                    maxId = chatMessage.getId();
                 }
-            } catch (InterruptedException e) {
-                break;
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            message.setId(maxId+1);
+            database.addMessage(message);
+            lock.unlock();
+            this.forward(message);
         }
+    }
+
+    public void shutdown() {
+        System.out.println("Server shutdown.");
     }
 
     private void forward(ChatMessage message) {

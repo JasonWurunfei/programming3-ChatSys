@@ -5,8 +5,9 @@ import programming3.chatsys.data.ChatMessage;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class MessageQueue {
+public abstract class MessageQueue implements Runnable {
     private Queue<ChatMessage> queue;
+    private int timeout = 500;
 
     public Queue<ChatMessage> getQueue() {
         return queue;
@@ -39,4 +40,25 @@ public class MessageQueue {
         }
         return this.queue.poll();
     }
+
+
+    public void run() {
+        initialize();
+        while (true) {
+            try {
+                ChatMessage message = this.getMessage(timeout);
+                handleMessage(message);
+            } catch (InterruptedException e) {
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        shutdown();
+    }
+
+
+    public abstract void initialize();
+    public abstract void handleMessage(ChatMessage message) throws Exception;
+    public abstract void shutdown();
 }

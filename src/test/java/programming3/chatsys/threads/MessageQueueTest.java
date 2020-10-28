@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import programming3.chatsys.data.ChatMessage;
+import programming3.chatsys.data.Database;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -18,7 +19,7 @@ class MessageQueueTest {
 
     @BeforeEach
     void setUp() {
-        queue = new MessageQueue();
+        queue = new ThreadServer(new Database());
     }
 
     @AfterEach

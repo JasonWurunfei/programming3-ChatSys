@@ -1,6 +1,7 @@
 package programming3.chatsys.cli;
 
 import programming3.chatsys.data.Database;
+import programming3.chatsys.data.TextDatabase;
 import programming3.chatsys.data.User;
 
 import java.io.File;
@@ -31,15 +32,12 @@ public class RegisterUser {
         String fullName = input.nextLine();
         System.out.print("Enter password >");
         String password = input.nextLine();
-        Database db = new Database();
-        Map<String, User> userMap = db.readUsers();
-        if (userMap.get(username) != null) {
-            System.out.println("This User is already registered.");
-            return;
-        } else {
-            File file = new File(userDBPath);
-            new User(username, fullName, password).save(file);
+        Database db = new TextDatabase();
+        User user = new User(username, fullName, password);
+        if (db.register(user)) {
             System.out.println("Register success.");
+        } else {
+            System.out.println("This User is already registered.");
         }
     }
 }

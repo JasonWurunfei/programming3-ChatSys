@@ -1,10 +1,8 @@
 package programming3.chatsys.threads;
 
 import programming3.chatsys.data.ChatMessage;
-import programming3.chatsys.data.Database;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadClient extends MessageQueue {

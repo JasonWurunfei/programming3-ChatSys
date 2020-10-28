@@ -3,16 +3,15 @@ package programming3.chatsys.threads;
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.Database;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadServer extends MessageQueue {
-    private int timeout = 500;
+    private final int timeout = 500;
     private Database database;
     private Set<ThreadClient> clients;
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
 
     ThreadServer(Database database) {
         this.database = database;
@@ -27,13 +26,7 @@ public class ThreadServer extends MessageQueue {
         if (message != null) {
             System.out.println("Server "+"receiving message > " + message.getMessage());
             lock.lock();
-            int maxId = 0;
-            for (ChatMessage chatMessage : database.readMessages()) {
-                if (chatMessage.getId() > maxId) {
-                    maxId = chatMessage.getId();
-                }
-            }
-            message.setId(maxId+1);
+            message.setId(this.database.lastId()+1);
             database.addMessage(message);
             lock.unlock();
             this.forward(message);

@@ -4,21 +4,18 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class DatabaseTest {
-    Database db;
+class TextDatabaseTest {
+    TextDatabase db;
 
     @BeforeEach
     void setUp() {
-        db = new Database();
+        db = new TextDatabase();
         db.setChatMessageDBPath(".\\chatMessage_database_test.txt");
         db.setUserDBPath(".\\user_database_test.txt");
 

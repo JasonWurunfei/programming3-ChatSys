@@ -2,6 +2,7 @@ package programming3.chatsys.cli;
 
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.Database;
+import programming3.chatsys.data.TextDatabase;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -34,7 +35,7 @@ public class SendMessages {
         File file = new File(chatMsgDBPath);
         int last_id = 0;
         if(file.exists() && file.length() != 0) {
-            Database db = new Database();
+            Database db = new TextDatabase();
             // get the biggest ChatMessage ID
             for (ChatMessage cm : db.readMessages()) {
                 if (last_id < cm.getId()) {

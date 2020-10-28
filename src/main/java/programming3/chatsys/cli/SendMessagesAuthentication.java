@@ -2,6 +2,7 @@ package programming3.chatsys.cli;
 
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.Database;
+import programming3.chatsys.data.TextDatabase;
 import programming3.chatsys.data.User;
 
 import java.io.File;
@@ -35,10 +36,8 @@ public class SendMessagesAuthentication {
         String password = input.nextLine();
 
         // Authentication
-        Database db = new Database();
-        Map<String, User> userMap = db.readUsers();
-        if (userMap.get(username) == null ||
-                !userMap.get(username).getPassword().equals(password)) {
+        Database db = new TextDatabase();
+        if (!db.authenticate(username, password)) {
             System.out.println("Wrong username or password.");
             return;
         }

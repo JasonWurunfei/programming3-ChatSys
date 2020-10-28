@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class User {
+public class User extends TextDatabaseItem {
 
     private String userName;
     private String fullName;
@@ -58,15 +58,6 @@ public class User {
         this.fullName = data[1];
         this.password = data[2];
         this.lastReadId = Integer.parseInt(data[3]);
-    }
-
-    public void save(File file) {
-        try(BufferedWriter pw = new BufferedWriter (new OutputStreamWriter(
-                new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
-            pw.write(this.format()+"\r\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 

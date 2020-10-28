@@ -1,15 +1,15 @@
 package programming3.chatsys.threads;
 
 import programming3.chatsys.data.Database;
+import programming3.chatsys.data.TextDatabase;
 
-import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class RunChat {
     public static void main(String[] args) {
-        Database db = new Database();
+        Database db = new TextDatabase();
         ExecutorService exec = Executors.newCachedThreadPool();
 
         ThreadServer server = new ThreadServer(db);

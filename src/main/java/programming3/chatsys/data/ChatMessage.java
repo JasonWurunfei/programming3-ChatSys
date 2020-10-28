@@ -8,11 +8,12 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ChatMessage {
+public class ChatMessage extends TextDatabaseItem {
     private int id;
     private String userName;
     private Timestamp timestamp;
     private String message;
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^\\w+$");
 
     @Override
     public String toString() {
@@ -85,9 +86,7 @@ public class ChatMessage {
         this.id = Integer.parseInt(data[0]);
         String userName = data[1];
 
-        String pattern = "^\\w+$";
-        Pattern regex = Pattern.compile(pattern);
-        Matcher matcher = regex.matcher(userName);
+        Matcher matcher = USERNAME_PATTERN.matcher(userName);
         if (matcher.find()) {
             this.userName = matcher.group(0);
         } else {
@@ -96,15 +95,6 @@ public class ChatMessage {
 
         this.timestamp = Timestamp.valueOf(data[2]);
         this.message = data[3];
-    }
-
-    public void save(File file) {
-        try(BufferedWriter pw = new BufferedWriter (new OutputStreamWriter(
-                new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
-            pw.write(this.format()+"\r\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

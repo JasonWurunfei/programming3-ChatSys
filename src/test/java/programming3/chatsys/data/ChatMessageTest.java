@@ -2,6 +2,7 @@ package programming3.chatsys.data;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +28,7 @@ public class ChatMessageTest {
         cm.setUserName("Jason");
         cm.setMessage("Hello World!");
         try {
-            Assertions.assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!", cm.format());
+            assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!", cm.format());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,13 +43,13 @@ public class ChatMessageTest {
             e.printStackTrace();
         }
         ChatMessage cm2 = new ChatMessage(100, "Jack", time, "HAHA");
-        Assertions.assertEquals(cm2, cm);
+        assertEquals(cm2, cm);
     }
 
     @Test
     public void ParseShouldThrow() {
         Timestamp time = new Timestamp(10000);
-        Assertions.assertThrows(Exception.class, () -> {
+        assertThrows(Exception.class, () -> {
             cm.parse("100\tJack@\t"+time+"\tHAHA");
         });
     }
@@ -62,11 +63,11 @@ public class ChatMessageTest {
         cm.setUserName("Jason");
         cm.setMessage("Hello World!");
         cm.save(file);
-        Assertions.assertEquals(true, file.exists());
+        assertEquals(true, file.exists());
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String line =  br.readLine();
-            Assertions.assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!", line);
+           assertEquals("10\t"+"Jason\t"+time+"\t"+"Hello World!", line);
         } catch(IOException e) {
             e.printStackTrace();
         }

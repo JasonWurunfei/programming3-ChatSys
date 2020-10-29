@@ -6,10 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.TextDatabase;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -38,14 +37,14 @@ class MessageQueueTest {
         q.offer(m1);
         q.offer(m2);
 
-        Assertions.assertEquals(q.take(), queue.getQueue().take());
-        Assertions.assertEquals(q.take(), queue.getQueue().take());
+        assertEquals(q.take(), queue.getQueue().take());
+        assertEquals(q.take(), queue.getQueue().take());
     }
 
     @Test
     void getMessage() throws InterruptedException {
         ChatMessage m = new ChatMessage(1, "Jason", new Timestamp(10), "Hello");
         queue.send(m);
-        Assertions.assertEquals(m, queue.getMessage());
+        assertEquals(m, queue.getMessage());
     }
 }

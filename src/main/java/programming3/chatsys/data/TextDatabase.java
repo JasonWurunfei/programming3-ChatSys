@@ -9,27 +9,14 @@ public class TextDatabase implements Database {
     private String chatMessageDBPath = ".\\chatMessageDatabase.txt";
     private String userDBPath = ".\\userDatabase.txt";
 
-    public String getChatMessageDBPath() {
-        return chatMessageDBPath;
-    }
-
     public void setChatMessageDBPath(String chatMessageDBPath) {
         this.chatMessageDBPath = chatMessageDBPath;
-    }
-
-    public String getUserDBPath() {
-        return userDBPath;
     }
 
     public void setUserDBPath(String userDBPath) {
         this.userDBPath = userDBPath;
     }
 
-
-    public TextDatabase(String chatMessageDBPath, String userDBPath) {
-        this.userDBPath = userDBPath;
-        this.chatMessageDBPath = chatMessageDBPath;
-    }
 
     public TextDatabase() {}
 
@@ -88,16 +75,14 @@ public class TextDatabase implements Database {
 
     @Override
     public void addMessage(ChatMessage msg) throws Exception {
-        File file = new File(this.chatMessageDBPath);
-
         // check ID
-        List<ChatMessage> msgList = this.readMessages();
         int maxId = this.lastId();
         if (msg.getId() <= maxId) {
             throw new Exception(
                     "ChatMessage's ID doesn't greater than" +
                             " all the ids of all the chat messages in datbase.");
         }
+        File file = new File(this.chatMessageDBPath);
         msg.save(file);
     }
 
@@ -155,5 +140,4 @@ public class TextDatabase implements Database {
             user.save(file);
         }
     }
-
 }

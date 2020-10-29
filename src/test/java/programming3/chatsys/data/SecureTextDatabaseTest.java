@@ -1,32 +1,35 @@
 package programming3.chatsys.data;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.*;
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class TextDatabaseTest {
-    TextDatabase db;
+import static org.junit.jupiter.api.Assertions.*;
+
+class SecureTextDatabaseTest {
+
+    SecureTextDatabase db;
 
     @BeforeEach
     void setUp() {
-        db = new TextDatabase();
-        db.setChatMessageDBPath(".\\chatMessage_database_test.txt");
-        db.setUserDBPath(".\\user_database_test.txt");
+        db = new SecureTextDatabase();
+        db.setChatMessageDBPath(".\\chatMessage_secureDatabase_test.txt");
+        db.setUserDBPath(".\\user_secureDatabase_test.txt");
 
-        File file = new File(".\\chatMessage_database_test.txt");
+        File file = new File(".\\chatMessage_secureDatabase_test.txt");
         ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");
         ChatMessage cm2 = new ChatMessage(2, "Ana", new Timestamp(200000), "Hello");
         cm1.save(file);
         cm2.save(file);
 
-        file = new File(".\\user_database_test.txt");
+        file = new File(".\\user_secureDatabase_test.txt");
         User user1 = new User("Jack", "JackMa", "666666");
         User user2 = new User("Jason", "JasonWu", "123456", 1);
         user1.save(file);
@@ -36,9 +39,9 @@ class TextDatabaseTest {
     @AfterEach
     void tearDown() {
         db = null;
-        File file = new File(".\\chatMessage_database_test.txt");
+        File file = new File(".\\chatMessage_secureDatabase_test.txt");
         file.delete();
-        file = new File(".\\user_database_test.txt");
+        file = new File(".\\user_secureDatabase_test.txt");
         file.delete();
     }
 
@@ -82,11 +85,15 @@ class TextDatabaseTest {
     }
 
     @Test
-    void testIDShouldGreaterThanAllOtherIDs() {
-        ChatMessage cm = new ChatMessage(2, "Jack", new Timestamp(1000000), "Hello World");
-        assertThrows(Exception.class, () -> {
-            db.addMessage(cm);
-        });
+    void alreadyRegistered() {
+        User user1 = new User("Jack", "JackMa", "666666");
+        assertFalse(db.register(user1));
+    }
+
+    @Test
+    void registerSuccess() {
+        User user1 = new User("Jack_123", "JackMa", "666666");
+        assertTrue(db.register(user1));
     }
 
     @Test
@@ -107,17 +114,5 @@ class TextDatabaseTest {
         Map<String, User> userMap = db.readUsers();
         assertEquals(2, userMap.get("Jack").getLastReadId());
         assertEquals(2, userMap.get("Jason").getLastReadId());
-    }
-
-    @Test
-    void alreadyRegistered() {
-        User user1 = new User("Jack", "JackMa", "666666");
-        assertFalse(db.register(user1));
-    }
-
-    @Test
-    void registerSuccess() {
-        User user1 = new User("Jack_123", "JackMa", "666666");
-        assertTrue(db.register(user1));
     }
 }

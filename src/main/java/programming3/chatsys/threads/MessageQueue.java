@@ -2,19 +2,20 @@ package programming3.chatsys.threads;
 
 import programming3.chatsys.data.ChatMessage;
 
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class MessageQueue implements Runnable {
-    private Queue<ChatMessage> queue;
+    private BlockingQueue<ChatMessage> queue;
     private int timeout = 500;
 
-    public Queue<ChatMessage> getQueue() {
+    public BlockingQueue<ChatMessage> getQueue() {
         return queue;
     }
 
     MessageQueue() {
-        this.queue = new LinkedList<>();
+        this.queue = new LinkedBlockingQueue<>();
     }
 
     /**
@@ -27,18 +28,11 @@ public abstract class MessageQueue implements Runnable {
 
     /**
      * get the first ChatMessage object of the message queue.
-     * @param waitTime The number of milliseconds that the thread will wait if
-     *                 the queue is empty. after the waitTime it will try to read
-     *                 again.
-     * @return null if there is no message during the given waiting time. Otherwise,
-     *              return the first ChatMessage object in its private message queue.
+     * @return the first ChatMessage object of the message queue.
      * @throws InterruptedException when it is interrupted.
      */
-    public ChatMessage getMessage(int waitTime) throws InterruptedException {
-        if (this.queue.peek() == null) {
-            Thread.sleep(waitTime);
-        }
-        return this.queue.poll();
+    public ChatMessage getMessage() throws InterruptedException {
+        return this.queue.take();
     }
 
 
@@ -46,7 +40,7 @@ public abstract class MessageQueue implements Runnable {
         initialize();
         while (true) {
             try {
-                ChatMessage message = this.getMessage(timeout);
+                ChatMessage message = this.getMessage();
                 if (message != null) {
                     handleMessage(message);
                 }

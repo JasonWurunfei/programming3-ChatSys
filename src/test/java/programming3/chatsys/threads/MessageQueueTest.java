@@ -10,6 +10,8 @@ import programming3.chatsys.data.TextDatabase;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 class MessageQueueTest {
 
@@ -26,28 +28,24 @@ class MessageQueueTest {
     }
 
     @Test
-    void send() {
+    void send() throws InterruptedException {
         ChatMessage m1 = new ChatMessage(1, "Jason", new Timestamp(10), "Hello");
         ChatMessage m2 = new ChatMessage(2, "Jack", new Timestamp(100), "Hei");
-        Queue<ChatMessage> q = new LinkedList<>();
+        BlockingQueue<ChatMessage> q = new LinkedBlockingQueue<>();
 
         queue.send(m1);
         queue.send(m2);
         q.offer(m1);
         q.offer(m2);
 
-        Assertions.assertEquals(q, queue.getQueue());
+        Assertions.assertEquals(q.take(), queue.getQueue().take());
+        Assertions.assertEquals(q.take(), queue.getQueue().take());
     }
 
     @Test
     void getMessage() throws InterruptedException {
         ChatMessage m = new ChatMessage(1, "Jason", new Timestamp(10), "Hello");
         queue.send(m);
-        Assertions.assertEquals(m, queue.getMessage(10));
-    }
-
-    @Test
-    void getMessageWait() throws InterruptedException {
-        Assertions.assertEquals(null, queue.getMessage(2000));
+        Assertions.assertEquals(m, queue.getMessage());
     }
 }

@@ -30,15 +30,13 @@ public class ThreadClient extends MessageQueue {
 
     @Override
     public void shutdown() {
-        System.out.println("Client shutdown.");
+        System.out.println("Client " +this.getName()+" shutdown.");
         this.server.unregister(this);
     }
 
     @Override
     public void handleMessage(ChatMessage message) {
-        if (message != null) {
-            System.out.println("Client "+this.name+" receiving message > "+ message.getMessage());
-        }
+        System.out.println("Client "+this.name+" receiving message > "+ message.getMessage());
     }
 
 }

@@ -21,6 +21,9 @@ public class RunChat {
         ThreadClient client2 = new ThreadClient(server, "client2");
         exec.submit(client2);
 
+        ThreadClient client3 = new AnsweringThreadClient(server, "Answering client3");
+        exec.submit(client3);
+
         exec.shutdown();
         try {
             if(!exec.awaitTermination(3, TimeUnit.SECONDS))

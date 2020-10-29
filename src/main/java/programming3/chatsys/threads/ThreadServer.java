@@ -23,14 +23,12 @@ public class ThreadServer extends MessageQueue {
     }
 
     public void handleMessage(ChatMessage message) throws Exception {
-        if (message != null) {
-            System.out.println("Server "+"receiving message > " + message.getMessage());
-            lock.lock();
-            message.setId(this.database.lastId()+1);
-            database.addMessage(message);
-            lock.unlock();
-            this.forward(message);
-        }
+        System.out.println("Server receiving message > " + message.getMessage());
+        lock.lock();
+        message.setId(this.database.lastId()+1);
+        database.addMessage(message);
+        lock.unlock();
+        this.forward(message);
     }
 
     public void shutdown() {

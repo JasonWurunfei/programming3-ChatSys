@@ -47,7 +47,9 @@ public abstract class MessageQueue implements Runnable {
         while (true) {
             try {
                 ChatMessage message = this.getMessage(timeout);
-                handleMessage(message);
+                if (message != null) {
+                    handleMessage(message);
+                }
             } catch (InterruptedException e) {
                 break;
             } catch (Exception e) {

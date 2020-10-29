@@ -39,6 +39,14 @@ public class ChatMessage extends TextDatabaseItem {
         this.message = "";
     }
 
+    public ChatMessage(String message) {
+        this.id = -1;
+        this.userName = "";
+        this.timestamp = null;
+        this.message = message;
+    }
+
+
     public int getId() {
         return id;
     }

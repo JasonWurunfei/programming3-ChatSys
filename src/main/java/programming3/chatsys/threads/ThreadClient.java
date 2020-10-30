@@ -4,6 +4,9 @@ import programming3.chatsys.data.ChatMessage;
 
 import java.sql.Timestamp;
 
+/**
+ * @author Wu Runfei (Jason SE181)
+ */
 public class ThreadClient extends MessageQueue {
     private ThreadServer server;
     private String name;

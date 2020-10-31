@@ -22,7 +22,7 @@ public class TextDatabase implements Database {
 
     @Override
     public List<ChatMessage> readMessages() {
-        List<ChatMessage> msgList = new ArrayList<ChatMessage>();
+        List<ChatMessage> msgList = new ArrayList<>();
         File file = new File(this.chatMessageDBPath);
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
@@ -45,10 +45,17 @@ public class TextDatabase implements Database {
         return msgList;
     }
 
+    public List<ChatMessage> readMessages(int num) {
+        List<ChatMessage> messages = this.readMessages();
+        messages = messages.subList(
+                Math.max(messages.size() - num, 0), messages.size());
+        return messages;
+    }
+
     @Override
     public Map<String, User> readUsers() {
 
-        Map<String, User> userMap = new HashMap<String, User>();
+        Map<String, User> userMap = new HashMap<>();
         File file = new File(this.userDBPath);
 
         try (BufferedReader br = new BufferedReader(
@@ -80,7 +87,7 @@ public class TextDatabase implements Database {
         if (msg.getId() <= maxId) {
             throw new Exception(
                     "ChatMessage's ID doesn't greater than" +
-                            " all the ids of all the chat messages in datbase.");
+                            " all the ids of all the chat messages in database.");
         }
         File file = new File(this.chatMessageDBPath);
         msg.save(file);
@@ -124,11 +131,8 @@ public class TextDatabase implements Database {
     @Override
     public boolean authenticate(String userName, String password) {
         Map<String, User> userMap = this.readUsers();
-        if (userMap.get(userName) == null ||
-                !userMap.get(userName).getPassword().equals(password)) {
-            return false;
-        }
-        return true;
+        return userMap.get(userName) != null &&
+                userMap.get(userName).getPassword().equals(password);
     }
 
     private void updateLastReadId(String userName, int id) {

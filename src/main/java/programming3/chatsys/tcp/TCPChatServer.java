@@ -1,6 +1,7 @@
 package programming3.chatsys.tcp;
 
 import programming3.chatsys.data.Database;
+import programming3.chatsys.data.SecureTextDatabase;
 import programming3.chatsys.data.TextDatabase;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class TCPChatServer {
     }
 
     public static void main(String[] args) throws IOException {
-        Database db = new TextDatabase();
+        Database db = new SecureTextDatabase();
         TCPChatServer server = new TCPChatServer(1042, 10000, db);
         server.start();
     }

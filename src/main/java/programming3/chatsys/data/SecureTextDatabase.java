@@ -18,6 +18,14 @@ public class SecureTextDatabase extends TextDatabase {
     }
 
     @Override
+    public List<ChatMessage> readMessages(int num) {
+        MessageLOCK.readLock().lock();
+        List<ChatMessage> messages = super.readMessages(num);
+        MessageLOCK.readLock().unlock();
+        return messages;
+    }
+
+    @Override
     public Map<String, User> readUsers() {
         UserLOCK.readLock().lock();
         Map<String, User> users = super.readUsers();

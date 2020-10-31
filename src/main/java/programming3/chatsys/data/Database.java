@@ -25,6 +25,14 @@ public interface Database {
     List<ChatMessage> readMessages();
 
     /**
+     * Read curtain number of ChatMessages from the database
+     * @param num number of messages will be returned
+     * @return List<ChatMessage> object containing all the ChatMessage objects
+     * if the given num parameter is bigger than the total number of ChatMessages
+     */
+    List<ChatMessage> readMessages(int num);
+
+    /**
      * get the first ChatMessage object of the message queue.
      *
      * @return the first ChatMessage object of the message queue.

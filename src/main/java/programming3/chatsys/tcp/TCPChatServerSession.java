@@ -7,13 +7,13 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TCPChatServerSession implements Runnable {
 
-    private static final Pattern GET_RECENT_MSG_PATTERN =
-            Pattern.compile("^GET recent messages ([\\d]+)$");
+    private static final Map<String, Pattern> PATTERNS = Protocols.PATTERNS;
 
     Database database;
     Socket socket;
@@ -36,8 +36,7 @@ public class TCPChatServerSession implements Runnable {
             System.out.println("Receive > "+message);
             handleMessage(message);
             writer.flush();
-            writer.close();
-            reader.close();
+            disconnect();
             System.out.println("session "+this.socket+" ended");
         } catch (SocketTimeoutException e) {
             System.out.println("Socket timeout");
@@ -51,24 +50,46 @@ public class TCPChatServerSession implements Runnable {
         }
     }
 
-    private void handleMessage(String message) throws IOException {
-        Matcher matcher = GET_RECENT_MSG_PATTERN.matcher(message);
-        if (matcher.find()) {
-            int numOfMsgs = Integer.parseInt(matcher.group(1));
-            List<ChatMessage> messages = database.readMessages();
-            int numOfMsgsInDB = messages.size();
-            messages = messages.subList(messages.size()-numOfMsgs, messages.size());
+    public void disconnect() throws IOException {
+        this.reader.close();
+        this.writer.close();
+        this.socket.close();
+    }
 
-            String respond = "MESSAGES "+Math.min(numOfMsgsInDB, numOfMsgs)+"\r\n";
-            for (ChatMessage chatMessage : messages) {
-                respond += "MESSAGE " + chatMessage.getUserName()+
-                        " "+chatMessage.getTimestamp()+" "+chatMessage.getMessage() +"\r\n";
+    private Map.Entry<String, Pattern> findMatch(String message) {
+        for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
+            if (Pattern.matches(entry.getValue().pattern(), message)) {
+                return entry;
             }
+        }
+        return null;
+    }
 
-            writer.write(respond);
+    private void handleMessage(String message) throws IOException {
+        Map.Entry<String, Pattern> entry = findMatch(message);
+        if (entry != null) {
+            switch (entry.getKey()) {
+                case "GET_RECENT": {
+                    getRecent(message, entry);
+                }
+            }
         } else {
-            System.out.println("Unknow request type.");
+            System.out.println("Unknown request type.");
             writer.write("Unknown request type.");
         }
+    }
+
+    private void getRecent(String message, Map.Entry<String, Pattern> entry) throws IOException {
+        Matcher matcher = entry.getValue().matcher(message);
+        matcher.find();
+        int numOfMsgs = Integer.parseInt(matcher.group(1));
+        List<ChatMessage> messages = database.readMessages(numOfMsgs);
+        
+        String respond = "MESSAGES "+messages.size()+"\r\n";
+        for (ChatMessage chatMessage : messages) {
+            respond += "MESSAGE " + chatMessage.getUserName()+
+                    " "+chatMessage.getTimestamp()+" "+chatMessage.getMessage() +"\r\n";
+        }
+        writer.write(respond);
     }
 }

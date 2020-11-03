@@ -26,18 +26,18 @@ public class TCPChatServer {
 
     public void start() throws IOException {
         ExecutorService exec = Executors.newCachedThreadPool();
-        socket = new ServerSocket(port);
+        initServerSocket();
         isRunning = true;
         System.out.println("System started");
-        Socket clientSocket = null;
+
         while (isRunning) {
-            clientSocket = this.socket.accept();
+            Socket clientSocket = this.socket.accept();
             System.out.println("New connection from " + clientSocket);
             clientSocket.setSoTimeout(timeout);
             exec.submit(new TCPChatServerSession(this.database, clientSocket));
         }
 
-        System.out.println("System shutdown");
+        System.out.println("System shutdown in two seconds");
         exec.shutdown();
         try {
             if(!exec.awaitTermination(2, TimeUnit.SECONDS))
@@ -45,6 +45,12 @@ public class TCPChatServer {
         } catch (InterruptedException ignore) {
             exec.shutdownNow();
         }
+        stop();
+        System.out.println("System shutdown");
+    }
+
+    protected void initServerSocket() throws IOException {
+        socket = new ServerSocket(port);
     }
 
     public void stop() throws IOException {
@@ -54,7 +60,7 @@ public class TCPChatServer {
 
     public static void main(String[] args) throws IOException {
         Database db = new SecureTextDatabase();
-        TCPChatServer server = new TCPChatServer(1042, 10000, db);
+        TCPChatServer server = new TCPChatServer(1042, 100000, db);
         server.start();
     }
 

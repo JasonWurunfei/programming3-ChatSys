@@ -17,8 +17,8 @@ class TextDatabaseTest {
     @BeforeEach
     void setUp() {
         db = new TextDatabase();
-        db.setChatMessageDBPath(".\\chatMessage_database_test.txt");
-        db.setUserDBPath(".\\user_database_test.txt");
+        db.setChatMessageDB(new File(".\\chatMessage_database_test.txt"));
+        db.setUserDB(new File(".\\user_database_test.txt"));
 
         File file = new File(".\\chatMessage_database_test.txt");
         ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");
@@ -79,14 +79,6 @@ class TextDatabaseTest {
         };
         List<ChatMessage> msgList2 = Arrays.asList(msgArray);
         assertEquals(msgList2, msgList1);
-    }
-
-    @Test
-    void testIDShouldGreaterThanAllOtherIDs() {
-        ChatMessage cm = new ChatMessage(2, "Jack", new Timestamp(1000000), "Hello World");
-        assertThrows(Exception.class, () -> {
-            db.addMessage(cm);
-        });
     }
 
     @Test

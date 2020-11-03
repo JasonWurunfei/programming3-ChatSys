@@ -20,8 +20,8 @@ class SecureTextDatabaseTest {
     @BeforeEach
     void setUp() {
         db = new SecureTextDatabase();
-        db.setChatMessageDBPath(".\\chatMessage_secureDatabase_test.txt");
-        db.setUserDBPath(".\\user_secureDatabase_test.txt");
+        db.setChatMessageDB(new File(".\\chatMessage_secureDatabase_test.txt"));
+        db.setUserDB(new File(".\\user_secureDatabase_test.txt"));
 
         File file = new File(".\\chatMessage_secureDatabase_test.txt");
         ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");

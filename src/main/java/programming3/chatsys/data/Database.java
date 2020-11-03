@@ -33,14 +33,20 @@ public interface Database {
     List<ChatMessage> readMessages(int num);
 
     /**
-     * get the first ChatMessage object of the message queue.
+     * Add a ChatMessage object to the database.
      *
      * @return the first ChatMessage object of the message queue.
      * @param msg ChatMessage object that is about to be add to the database
-     * @throws Exception if the ChatMessage object given has smaller than
-     * or equal to ID the biggest ID in the database.
      */
-    void addMessage(ChatMessage msg) throws Exception;
+    void addMessage(ChatMessage msg);
+
+    /**
+     * Add a ChatMessage object to the database.
+     * @param userName user who sends the message.
+     * @param message the message to add.
+     * @return ChatMessage object that just added.
+     */
+    ChatMessage addMessage(String userName, String message);
 
     /**
      * Save a formatted User object into user database file
@@ -66,6 +72,8 @@ public interface Database {
      * @return the first ChatMessage object of the message queue.
      */
     boolean authenticate(String userName, String password);
+
+    public User login(String userName, String password);
 
     /**
      * get the biggest ID in the database file.

@@ -2,30 +2,29 @@ package programming3.chatsys.data;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.*;
 
 public class TextDatabase implements Database {
 
-    private String chatMessageDBPath = ".\\chatMessageDatabase.txt";
-    private String userDBPath = ".\\userDatabase.txt";
+    private File chatMessageDB = new File(".\\chatMessageDatabase.txt");
+    private File userDB = new File(".\\userDatabase.txt");
 
-    public void setChatMessageDBPath(String chatMessageDBPath) {
-        this.chatMessageDBPath = chatMessageDBPath;
+    public void setChatMessageDB(File chatMessageDB) {
+        this.chatMessageDB = chatMessageDB;
     }
 
-    public void setUserDBPath(String userDBPath) {
-        this.userDBPath = userDBPath;
+    public void setUserDB(File userDB) {
+        this.userDB = userDB;
     }
 
 
     public TextDatabase() {}
 
-    @Override
     public List<ChatMessage> readMessages() {
         List<ChatMessage> msgList = new ArrayList<>();
-        File file = new File(this.chatMessageDBPath);
         try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+                new InputStreamReader(new FileInputStream(chatMessageDB), StandardCharsets.UTF_8))) {
 
             String line;
             while((line = br.readLine()) != null) {
@@ -52,14 +51,12 @@ public class TextDatabase implements Database {
         return messages;
     }
 
-    @Override
     public Map<String, User> readUsers() {
 
         Map<String, User> userMap = new HashMap<>();
-        File file = new File(this.userDBPath);
 
         try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+                new InputStreamReader(new FileInputStream(userDB), StandardCharsets.UTF_8))) {
 
             String line;
             while((line = br.readLine()) != null) {
@@ -80,24 +77,34 @@ public class TextDatabase implements Database {
         return userMap;
     }
 
-    @Override
-    public void addMessage(ChatMessage msg) throws Exception {
-        // check ID
-        int maxId = this.lastId();
-        if (msg.getId() <= maxId) {
-            throw new Exception(
-                    "ChatMessage's ID doesn't greater than" +
-                            " all the ids of all the chat messages in database.");
-        }
-        File file = new File(this.chatMessageDBPath);
-        msg.save(file);
+    public void addMessage(ChatMessage msg) {
+        if (this.lastId() >= msg.getId())
+            msg.setId(this.lastId()+1);
+        msg.save(chatMessageDB);
+    }
+
+    /**
+     * Add a ChatMessage object to the database.
+     * @param userName user who sends the message.
+     * @param message the message to add.
+     * @return ChatMessage object that just added.
+     */
+    public ChatMessage addMessage(String userName, String message) {
+        ChatMessage chatMessage = new ChatMessage(
+                this.lastId() + 1,
+                userName,
+                new Timestamp(new Date().getTime()),
+                message
+        );
+        chatMessage.save(chatMessageDB);
+        return chatMessage;
     }
 
     @Override
     public boolean register(User user) {
         Map<String, User> userMap = this.readUsers();
         if (userMap.get(user.getUserName()) == null) {
-            user.save(new File(this.userDBPath));
+            user.save(this.userDB);
             return true;
         }
         return false;
@@ -135,13 +142,20 @@ public class TextDatabase implements Database {
                 userMap.get(userName).getPassword().equals(password);
     }
 
+    public User login(String userName, String password) {
+        if (authenticate(userName, password)) {
+            return this.readUsers().get(userName);
+        } else {
+            return null;
+        }
+    }
+
     private void updateLastReadId(String userName, int id) {
         Map<String, User> users = this.readUsers();
         users.get(userName).setLastReadId(id);
-        File file = new File(this.userDBPath);
-        file.delete();
+        userDB.delete();
         for (User user: users.values()) {
-            user.save(file);
+            user.save(userDB);
         }
     }
 }

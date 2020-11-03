@@ -12,47 +12,81 @@ public class SecureTextDatabase extends TextDatabase {
     @Override
     public List<ChatMessage> readMessages() {
         MessageLOCK.readLock().lock();
-        List<ChatMessage> messages = super.readMessages();
-        MessageLOCK.readLock().unlock();
-        return messages;
+        try {
+            return super.readMessages();
+        } finally {
+            MessageLOCK.readLock().unlock();
+        }
+
     }
 
     @Override
     public List<ChatMessage> readMessages(int num) {
         MessageLOCK.readLock().lock();
-        List<ChatMessage> messages = super.readMessages(num);
-        MessageLOCK.readLock().unlock();
-        return messages;
+        try {
+            return super.readMessages(num);
+        } finally {
+            MessageLOCK.readLock().unlock();
+        }
     }
 
     @Override
     public Map<String, User> readUsers() {
         UserLOCK.readLock().lock();
-        Map<String, User> users = super.readUsers();
-        UserLOCK.readLock().unlock();
-        return users;
+        try {
+            return super.readUsers();
+        } finally {
+            UserLOCK.readLock().unlock();
+        }
     }
 
     @Override
-    public void addMessage(ChatMessage msg) throws Exception {
+    public void addMessage(ChatMessage msg) {
         MessageLOCK.writeLock().lock();
-        super.addMessage(msg);
-        MessageLOCK.writeLock().unlock();
+        try {
+            super.addMessage(msg);
+        } finally {
+            MessageLOCK.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public ChatMessage addMessage(String userName, String message) {
+        MessageLOCK.writeLock().lock();
+        try {
+            return super.addMessage(userName, message);
+        } finally {
+            MessageLOCK.writeLock().unlock();
+        }
     }
 
     @Override
     public boolean register(User user) {
         UserLOCK.writeLock().lock();
-        boolean res =  super.register(user);
-        UserLOCK.writeLock().unlock();
-        return res;
+        try {
+            return super.register(user);
+        } finally {
+            UserLOCK.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public User login(String userName, String password) {
+        UserLOCK.readLock().lock();
+        try {
+            return super.login(userName, password);
+        } finally {
+            UserLOCK.readLock().unlock();
+        }
     }
 
     @Override
     public List<ChatMessage> getUnreadMessages(String userName) {
         UserLOCK.writeLock().lock();
-        List<ChatMessage> messages = super.getUnreadMessages(userName);
-        UserLOCK.writeLock().unlock();
-        return messages;
+        try {
+            return super.getUnreadMessages(userName);
+        } finally {
+            UserLOCK.writeLock().unlock();
+        }
     }
 }

@@ -24,9 +24,13 @@ public class TCPChatClient {
     }
 
     public void connect() throws IOException {
-        this.socket = new Socket(serverHost, serverPort);
+        initServerSocket();
         this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+
+    protected void initServerSocket() throws IOException {
+        this.socket = new Socket(serverHost, serverPort);
     }
 
     public void send(String message) throws IOException {

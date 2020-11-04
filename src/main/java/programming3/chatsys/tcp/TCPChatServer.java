@@ -2,7 +2,6 @@ package programming3.chatsys.tcp;
 
 import programming3.chatsys.data.Database;
 import programming3.chatsys.data.SecureTextDatabase;
-import programming3.chatsys.data.TextDatabase;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -18,6 +17,10 @@ public class TCPChatServer {
     private Boolean isRunning = false;
     private ServerSocket socket;
 
+    public int getPort() {
+        return port;
+    }
+
     public TCPChatServer(int port, int timeout, Database database) {
         this.port = port;
         this.timeout = timeout;
@@ -26,7 +29,7 @@ public class TCPChatServer {
 
     public void start() throws IOException {
         ExecutorService exec = Executors.newCachedThreadPool();
-        initServerSocket();
+        this.socket = initServerSocket();
         isRunning = true;
         System.out.println("System started");
 
@@ -49,8 +52,8 @@ public class TCPChatServer {
         System.out.println("System shutdown");
     }
 
-    protected void initServerSocket() throws IOException {
-        socket = new ServerSocket(port);
+    protected ServerSocket initServerSocket() throws IOException {
+        return new ServerSocket(port);
     }
 
     public void stop() throws IOException {

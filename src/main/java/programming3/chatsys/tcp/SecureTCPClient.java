@@ -3,26 +3,29 @@ package programming3.chatsys.tcp;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
 
 public class SecureTCPClient extends TCPChatClient{
-    private String serverHost;
-    private int serverPort;
-    private Socket socket;
 
     SecureTCPClient(String serverHost, int serverPort) throws IOException {
         super(serverHost, serverPort);
     }
 
     @Override
-    public void initServerSocket() throws IOException {
+    public Socket initServerSocket() throws IOException {
         SocketFactory factory = SSLSocketFactory.getDefault();
-        SSLSocket socket = (SSLSocket) factory.createSocket(serverHost, serverPort);
+        SSLSocket socket = (SSLSocket) factory.createSocket(getServerHost(), getServerPort());
         String[] supported = socket.getSupportedCipherSuites();
         socket.setEnabledCipherSuites(supported);
-        this.socket = socket;
+        return socket;
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.setProperty("javax.net.ssl.trustStore", "mykeys.keys");
+        SecureTCPClient client = new SecureTCPClient("localhost", 1042);
+        client.connect();
+        client.requestMessages(10);
+        client.disconnect();
     }
 }

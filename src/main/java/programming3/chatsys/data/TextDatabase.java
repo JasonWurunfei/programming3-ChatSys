@@ -7,8 +7,8 @@ import java.util.*;
 
 public class TextDatabase implements Database {
 
-    private File chatMessageDB = new File(".\\chatMessageDatabase.txt");
-    private File userDB = new File(".\\userDatabase.txt");
+    private File chatMessageDB = new File(".\\data\\messages.db");
+    private File userDB = new File(".\\data\\user.db");
 
     public void setChatMessageDB(File chatMessageDB) {
         this.chatMessageDB = chatMessageDB;
@@ -19,7 +19,12 @@ public class TextDatabase implements Database {
     }
 
 
-    public TextDatabase() {}
+    public TextDatabase() {
+        if (!userDB.exists()) {
+            new User("user1", "User1", "mypassword").save(userDB);
+            new User("user_2", "Full Name", "Password").save(userDB);
+        }
+    }
 
     public List<ChatMessage> readMessages() {
         List<ChatMessage> msgList = new ArrayList<>();

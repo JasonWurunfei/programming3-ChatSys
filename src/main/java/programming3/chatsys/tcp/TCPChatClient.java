@@ -12,6 +12,14 @@ public class TCPChatClient {
      * (e.g. connect, send, disconnect methods)
      */
 
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    public int getServerPort() {
+        return serverPort;
+    }
+
     private String serverHost;
     private int serverPort;
     private BufferedReader reader;
@@ -24,13 +32,13 @@ public class TCPChatClient {
     }
 
     public void connect() throws IOException {
-        initServerSocket();
+        this.socket = initServerSocket();
         this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    protected void initServerSocket() throws IOException {
-        this.socket = new Socket(serverHost, serverPort);
+    protected Socket initServerSocket() throws IOException {
+        return new Socket(serverHost, serverPort);
     }
 
     public void send(String message) throws IOException {

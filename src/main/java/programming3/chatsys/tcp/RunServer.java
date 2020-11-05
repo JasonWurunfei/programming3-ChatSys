@@ -1,6 +1,5 @@
 package programming3.chatsys.tcp;
 
-import programming3.chatsys.data.Database;
 import programming3.chatsys.data.SecureTextDatabase;
 
 import java.io.File;
@@ -8,7 +7,10 @@ import java.io.IOException;
 
 public class RunServer {
     public static void run(String host, int port, int timeout, String messagesDb, String userDb) throws IOException {
-        SecureTextDatabase db = new SecureTextDatabase();
+        SecureTextDatabase db = new SecureTextDatabase(
+                new File(".\\data\\messages.db"),
+                new File(".\\data\\user.db")
+        );
         db.setChatMessageDB(new File(messagesDb));
         db.setUserDB(new File(userDb));
         TCPChatServer server = new TCPChatServer(port, timeout, db);

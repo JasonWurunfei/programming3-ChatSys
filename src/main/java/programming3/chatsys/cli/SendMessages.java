@@ -35,7 +35,10 @@ public class SendMessages {
         File file = new File(chatMsgDBPath);
         int last_id = 0;
         if(file.exists() && file.length() != 0) {
-            Database db = new TextDatabase();
+            Database db = new TextDatabase(
+                    new File(".\\data\\messages.db"),
+                    new File(".\\data\\user.db")
+            );
             // get the biggest ChatMessage ID
             for (ChatMessage cm : db.readMessages()) {
                 if (last_id < cm.getId()) {

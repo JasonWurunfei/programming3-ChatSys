@@ -105,7 +105,7 @@ public class TCPChatServerSession implements Runnable {
         System.out.println("login");
         String username = matcher.group("username");
         String password = matcher.group("password");
-        if((authenticatedUser = database.login(username, password)) != null) {
+        if((authenticatedUser = database.getUserIfAuthenticated(username, password)) != null) {
             sendRespond("OK");
         } else {
             sendError("Wrong username or password.");

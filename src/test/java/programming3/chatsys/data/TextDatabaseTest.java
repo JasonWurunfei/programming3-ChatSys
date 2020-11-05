@@ -13,64 +13,54 @@ import java.util.Map;
 
 class TextDatabaseTest {
     TextDatabase db;
+    File chatMessageDB = new File(".\\message_test.db");
+    File userDB = new File(".\\user_test.db");
+    ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");
+    ChatMessage cm2 = new ChatMessage(2, "Ana", new Timestamp(200000), "Hello");
+    User user1 = new User("Jack", "JackMa", "666666");
+    User user2 = new User("Jason", "JasonWu", "123456", 1);
+    User defaultUser1 = new User("user1\tUser1\tmypassword\t0");
+    User defaultUser2 = new User("user_2\tFull Name\tPassword\t0");
 
     @BeforeEach
     void setUp() {
-        db = new TextDatabase();
-        db.setChatMessageDB(new File(".\\chatMessage_database_test.txt"));
-        db.setUserDB(new File(".\\user_database_test.txt"));
+        db = new TextDatabase(chatMessageDB, userDB);
 
-        File file = new File(".\\chatMessage_database_test.txt");
-        ChatMessage cm1 = new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo");
-        ChatMessage cm2 = new ChatMessage(2, "Ana", new Timestamp(200000), "Hello");
-        cm1.save(file);
-        cm2.save(file);
+        cm1.save(chatMessageDB);
+        cm2.save(chatMessageDB);
 
-        file = new File(".\\user_database_test.txt");
-        User user1 = new User("Jack", "JackMa", "666666");
-        User user2 = new User("Jason", "JasonWu", "123456", 1);
-        user1.save(file);
-        user2.save(file);
+        user1.save(userDB);
+        user2.save(userDB);
     }
 
     @AfterEach
     void tearDown() {
         db = null;
-        File file = new File(".\\chatMessage_database_test.txt");
-        file.delete();
-        file = new File(".\\user_database_test.txt");
-        file.delete();
+        chatMessageDB.delete();
+        userDB.delete();
     }
 
     @Test
     void readMessages() {
-        ChatMessage[] msgArray = new ChatMessage[] {
-                new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
-                new ChatMessage(2, "Ana", new Timestamp(200000), "Hello"),
-        };
+        ChatMessage[] msgArray = new ChatMessage[] {cm1, cm2};
         List<ChatMessage> msgList = Arrays.asList(msgArray);
         assertEquals(msgList, db.readMessages());
     }
 
     @Test
     void readUsers() {
-        User user1 = new User("Jack", "JackMa", "666666");
-        User user2 = new User("Jason", "JasonWu", "123456", 1);
         Map<String, User> userMap = new HashMap<String, User>();
         userMap.put("Jack", user1);
         userMap.put("Jason", user2);
+        userMap.put("user1", defaultUser1);
+        userMap.put("user_2", defaultUser2);
         assertEquals(userMap, db.readUsers());
     }
 
     @Test
     void addMessage() {
         ChatMessage cm = new ChatMessage(5, "Jack", new Timestamp(1000000), "Hello World");
-        try {
-            db.addMessage(cm);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        List<ChatMessage> msgList1 = db.readMessages();
+        db.addMessage(cm);
 
         ChatMessage[] msgArray = new ChatMessage[] {
                 new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo"),
@@ -78,7 +68,8 @@ class TextDatabaseTest {
                 new ChatMessage(5, "Jack", new Timestamp(1000000), "Hello World")
         };
         List<ChatMessage> msgList2 = Arrays.asList(msgArray);
-        assertEquals(msgList2, msgList1);
+
+        assertEquals(msgList2, db.readMessages());
     }
 
     @Test

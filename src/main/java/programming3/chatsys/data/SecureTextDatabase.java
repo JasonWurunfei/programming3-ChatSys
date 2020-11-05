@@ -1,5 +1,6 @@
 package programming3.chatsys.data;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -8,6 +9,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class SecureTextDatabase extends TextDatabase {
     final static ReadWriteLock MessageLOCK = new ReentrantReadWriteLock();
     final static ReadWriteLock UserLOCK = new ReentrantReadWriteLock();
+
+    public SecureTextDatabase(File chatMessageDB, File userDB) {
+        super(chatMessageDB, userDB);
+    }
 
     @Override
     public List<ChatMessage> readMessages() {
@@ -71,10 +76,10 @@ public class SecureTextDatabase extends TextDatabase {
     }
 
     @Override
-    public User login(String userName, String password) {
+    public User getUserIfAuthenticated(String userName, String password) {
         UserLOCK.readLock().lock();
         try {
-            return super.login(userName, password);
+            return super.getUserIfAuthenticated(userName, password);
         } finally {
             UserLOCK.readLock().unlock();
         }

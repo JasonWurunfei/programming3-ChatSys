@@ -5,7 +5,6 @@ import programming3.chatsys.data.TextDatabase;
 import programming3.chatsys.data.User;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +31,10 @@ public class RegisterUser {
         String fullName = input.nextLine();
         System.out.print("Enter password >");
         String password = input.nextLine();
-        Database db = new TextDatabase();
+        Database db = new TextDatabase(
+                new File(".\\data\\messages.db"),
+                new File(".\\data\\user.db")
+        );
         User user = new User(username, fullName, password);
         if (db.register(user)) {
             System.out.println("Register success.");

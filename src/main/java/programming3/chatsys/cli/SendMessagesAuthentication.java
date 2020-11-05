@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 public class SendMessagesAuthentication {
     public static void main(String[] args) {
-        String userDBPath = "./UserDatabase.txt";
 
         // Ask for user name.
         String pattern = "^[\\w]+$";
@@ -34,7 +33,10 @@ public class SendMessagesAuthentication {
         String password = input.nextLine();
 
         // Authentication
-        Database db = new TextDatabase();
+        Database db = new TextDatabase(
+                new File(".\\data\\messages.db"),
+                new File(".\\data\\user.db")
+        );
         if (!db.authenticate(username, password)) {
             System.out.println("Wrong username or password.");
             return;

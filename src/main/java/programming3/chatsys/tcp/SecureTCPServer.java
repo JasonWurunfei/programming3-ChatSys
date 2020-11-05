@@ -7,6 +7,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -68,7 +69,10 @@ public class SecureTCPServer extends TCPChatServer {
     }
 
     public static void main(String[] args) throws IOException {
-        Database db = new SecureTextDatabase();
+        Database db = new SecureTextDatabase(
+                new File(".\\data\\messages.db"),
+                new File(".\\data\\user.db")
+        );
         SecureTCPServer server = new SecureTCPServer(1042, 100000, db);
         server.start();
     }

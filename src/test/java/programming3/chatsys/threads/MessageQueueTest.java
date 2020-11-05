@@ -1,13 +1,13 @@
 package programming3.chatsys.threads;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.TextDatabase;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,10 +15,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 class MessageQueueTest {
 
     MessageQueue queue;
+    File userDB = new File(".\\user_test.db");
 
     @BeforeEach
     void setUp() {
-        queue = new ThreadServer(new TextDatabase());
+        queue = new ThreadServer(new TextDatabase(
+                    new File(".\\message_test.db"),
+                    new File(".\\user_test.db")
+        ));
+        if (userDB.exists())
+            userDB.delete();
     }
 
     @AfterEach

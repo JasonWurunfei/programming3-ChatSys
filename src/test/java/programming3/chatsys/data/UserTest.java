@@ -1,19 +1,18 @@
 package programming3.chatsys.data;
 
 import org.junit.jupiter.api.*;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
     User user;
+    File file = new File(".\\user_test.db");
 
     @BeforeEach
     void setUp() {
-        user = new User();
+        user = new User("Jason\tJasonWu\t123456\t0");
     }
 
     @AfterEach
@@ -23,24 +22,12 @@ class UserTest {
 
     @Test
     void format() {
-        user.setUserName("Jason");
-        user.setFullName("JasonWu");
-        user.setPassword("123456");
-        try {
-            assertEquals("Jason\tJasonWu\t123456\t0", user.format());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        assertEquals("Jason\tJasonWu\t123456\t0", user.format());
     }
 
     @Test
     void parse() {
-        String data = "Jack\tJackMa\t666666\t10";
-        try {
-            user.parse(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        user.parse("Jack\tJackMa\t666666\t10");
         assertEquals("Jack", user.getUserName());
         assertEquals("JackMa", user.getFullName());
         assertEquals("666666", user.getPassword());
@@ -48,25 +35,64 @@ class UserTest {
     }
 
     @Test
-    void save() {
-        File file = new File(".\\user_test.txt");
-        user.setUserName("Jason");
-        user.setFullName("JasonWu");
-        user.setPassword("123456");
+    public void parseWithNotEnoughTabulations() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            user.parse("Jack\t666666\t10");
+        },"The String does not contain enough tabulations and cannot be parsed");
+    }
+
+
+    @Test
+    public void parseWithLineFeed() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new User("Jason\tJason\nWu\t123456\t0");
+        }, "fullName contains a line feed");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new User("Jason\tJasonWu\t12\n3456\t0");
+        }, "password contains a line feed");
+    }
+
+    @Test
+    public void parseInvalidUsername() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            user.parse("Jas\non\tJasonWu\t123456\t0");
+        }, "userName is invalid");
+        assertThrows(IllegalArgumentException.class, () -> {
+            user.parse("Jason@\tJasonWu\t123456\t0");
+        }, "userName is invalid");
+        assertThrows(IllegalArgumentException.class, () -> {
+            user.parse("Jason wu\tJasonWu\t123456\t0");
+        }, "userName is invalid");
+        assertThrows(IllegalArgumentException.class, () -> {
+            user.parse("吴润飞\tJasonWu\t123456\t0");
+        }, "userName is invalid");
+    }
+
+    @Test
+    public void parseInvalidLastReadIds() {
+        assertThrows(NumberFormatException.class, () -> {
+            user.parse("Jason\tJasonWu\t123456\tabc");
+        });
+        assertThrows(NumberFormatException.class, () -> {
+            user.parse("Jason\tJasonWu\t123456\t12@#@");
+        });
+    }
+
+    @Test
+    void save() throws IOException {
         user.save(file);
         assertEquals(true, file.exists());
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            String line = br.readLine();
-            assertEquals("Jason\tJasonWu\t123456\t0", line);
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(file), StandardCharsets.UTF_8));
+        String line = br.readLine();
+        br.close();
+
+        assertEquals("Jason\tJasonWu\t123456\t0", line);
     }
 
     @AfterAll
     public static void clean() {
-        File file = new File(".\\user_test.txt");
+        File file = new File(".\\user_test.db");
         if (file.exists())
             file.delete();
     }

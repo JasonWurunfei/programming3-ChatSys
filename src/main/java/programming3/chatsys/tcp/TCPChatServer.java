@@ -3,6 +3,7 @@ package programming3.chatsys.tcp;
 import programming3.chatsys.data.Database;
 import programming3.chatsys.data.SecureTextDatabase;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -62,7 +63,10 @@ public class TCPChatServer {
     }
 
     public static void main(String[] args) throws IOException {
-        Database db = new SecureTextDatabase();
+        Database db = new SecureTextDatabase(
+                new File(".\\data\\messages.db"),
+                new File(".\\data\\user.db")
+        );
         TCPChatServer server = new TCPChatServer(1042, 100000, db);
         server.start();
     }

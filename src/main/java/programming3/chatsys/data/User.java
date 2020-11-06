@@ -3,6 +3,10 @@ package programming3.chatsys.data;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * Represents a user.
+ * @author Wu Runfei (Jason SE181)
+ */
 public class User extends TextDatabaseItem {
 
     private String userName;

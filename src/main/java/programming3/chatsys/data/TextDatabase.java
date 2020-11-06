@@ -5,10 +5,14 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
+/**
+ * Represents a text database.
+ * @author Wu Runfei (Jason SE181)
+ */
 public class TextDatabase implements Database {
 
-    private File chatMessageDB = new File(".\\data\\messages.db");
-    private File userDB = new File(".\\data\\user.db");
+    private File chatMessageDB;
+    private File userDB;
 
     public void setChatMessageDB(File chatMessageDB) {
         this.chatMessageDB = chatMessageDB;

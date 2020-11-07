@@ -14,14 +14,6 @@ public class TextDatabase implements Database {
     private File chatMessageDB;
     private File userDB;
 
-    public void setChatMessageDB(File chatMessageDB) {
-        this.chatMessageDB = chatMessageDB;
-    }
-
-    public void setUserDB(File userDB) {
-        this.userDB = userDB;
-    }
-
     /**
      * Constructor of TextDatabase class used to create a new TextDatabase object.
      * if the user text database is not created yet, it will create a user database

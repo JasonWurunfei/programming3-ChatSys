@@ -9,16 +9,20 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+/**
+ * Represents a server session
+ * @author Wu Runfei (Jason SE181)
+ */
 public class TCPChatServerSession implements Runnable {
 
-    private static final Map<String, Pattern> PATTERNS = Protocols.PATTERNS;
+    /*
+     * This class is similar to SimpleChatServerSession class in programming3.topic4.example5
+     * (e.g. connect, send, disconnect , initInputOutput methods)
+     */
 
-    Database database;
     Socket socket;
+    Database database;
     private BufferedReader reader;
     private BufferedWriter writer;
     private boolean error = false;
@@ -29,7 +33,9 @@ public class TCPChatServerSession implements Runnable {
         this.socket = socket;
     }
 
-
+    /**
+     * Runs the session.
+     */
     @Override
     public void run() {
         System.out.println("New session started at " + this.socket);
@@ -57,54 +63,62 @@ public class TCPChatServerSession implements Runnable {
         }
     }
 
-    public void initInputOutput() throws IOException {
+    /**
+     * Creates writer and reader for the interaction between server and clients.
+     * @throws IOException if an I/O error occurs when creating the socket output stream
+     * or if the socket is not connected
+     */
+    private void initInputOutput() throws IOException {
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    public void disconnect() throws IOException {
+
+    /**
+     * Release all the resources and close the socket
+     * @throws IOException if an I/O error occurs when closing the resources.
+     */
+    private void disconnect() throws IOException {
         reader.close();
         writer.close();
         socket.close();
     }
 
-    private static class MatchSet {
-        public String type;
-        public Matcher matcher;
-        MatchSet(String type, Matcher matcher) {
-            this.type = type;
-            this.matcher = matcher;
-        }
-    }
-
-    private MatchSet findMatch(String message) {
-        for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
-            Matcher matcher = entry.getValue().matcher(message);
-            if(matcher.find())
-                return new MatchSet(entry.getKey(), matcher);
-        }
-        return null;
-    }
-
+    /**
+     * handle the incoming message from client according. And delegate the message
+     * data and work to different protocol handle methods.
+     * @param message one line message from the client
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
     private void handleMessage(String message) throws IOException {
-        MatchSet matchSet = findMatch(message);
-        if (matchSet != null) {
-            switch (matchSet.type) {
-                case "GET_RECENT":   getRecent(matchSet.matcher); break;
+        Protocol.MatchTuple matchTuple = Protocol.findMatch(message);
+        if (matchTuple != null) {
+            switch (matchTuple.type) {
                 case "GET_UNREAD":   getUnread(); break;
-                case "POST_MESSAGE": postMessage(matchSet.matcher); break;
-                case "LOGIN":        login(matchSet.matcher); break;
-                case "REGISTER":     register(matchSet.matcher); break;
+                case "POST_MESSAGE": postMessage(matchTuple.matcher.group("message")); break;
+                case "GET_RECENT":   getRecent(Integer.parseInt(matchTuple.matcher.group("num"))); break;
+
+                case "LOGIN":        login(matchTuple.matcher.group("username"),
+                                           matchTuple.matcher.group("password"));break;
+
+                case "REGISTER":     register(matchTuple.matcher.group("username"),
+                                              matchTuple.matcher.group("fullName"),
+                                              matchTuple.matcher.group("password")); break;
             }
         } else {
             sendError("Unknown request type.");
         }
     }
 
-    private void login(Matcher matcher) throws IOException {
-        System.out.println("login");
-        String username = matcher.group("username");
-        String password = matcher.group("password");
+    /**
+     * Performs the login operation defined in the protocol.
+     * @param username the name of the user
+     * @param password the password of the user
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
+    private void login(String username, String password) throws IOException {
+        System.out.println("login user: " + username);
+
         if((authenticatedUser = database.getUserIfAuthenticated(username, password)) != null) {
             sendRespond("OK");
         } else {
@@ -112,28 +126,57 @@ public class TCPChatServerSession implements Runnable {
         }
     }
 
-    private void register(Matcher matcher) throws IOException {
-        String username = matcher.group("username");
-        String fullName = matcher.group("fullName");
-        String password = matcher.group("password");
-        if(database.register(new User(username, fullName, password))) {
-            sendRespond("OK");
-        } else {
-            sendError("This username is taken by other user.");
+    /**
+     * Performs the register operation defined in the protocol.
+     * @param username the name of the user
+     * @param fullName the full name of the user
+     * @param password the password of the user
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
+    private void register(String username, String fullName, String password) throws IOException {
+        System.out.println("registering user ...");
+        System.out.println("fullName > " + username);
+        System.out.println("fullName > " + fullName);
+        System.out.println("fullName > " + password);
+
+        try {
+            if(database.register(new User(username, fullName, password))) {
+                System.out.println("register user "+ username + " success.");
+                sendRespond("OK");
+            } else {
+                System.out.println();
+                sendError("register user "+ username + " failed. " +
+                          "\nThis username is taken by other user.");
+            }
+        } catch (IllegalArgumentException e) {
+            if ("userName is invalid".equals(e.getMessage())) {
+                sendError("userName is invalid.");
+            } else {
+                sendError("error occurred when registering.");
+            }
         }
     }
 
-    private void postMessage(Matcher matcher) throws IOException {
-        System.out.println("postMessage");
+    /**
+     * Performs the login operation defined in the protocol.
+     * @param message the message content
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
+    private void postMessage(String message) throws IOException {
         if (authenticatedUser != null) {
-            String message = matcher.group("message");
             database.addMessage(authenticatedUser.getUserName(), message);
+            System.out.println("user: " + authenticatedUser.getUserName() +
+                    "\npost message: " + message);
             sendRespond("OK");
         } else {
             sendError("User is not authenticated.");
         }
     }
 
+    /**
+     * Performs the get unread message operation defined in the protocol.
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
     private void getUnread() throws IOException {
         System.out.println("getUnread");
         if (authenticatedUser != null) {
@@ -145,20 +188,33 @@ public class TCPChatServerSession implements Runnable {
         }
     }
 
-    private void getRecent(Matcher matcher) throws IOException {
-        int numOfMsgs = Integer.parseInt(matcher.group("num"));
+    /**
+     * Performs the get recent message operation defined in the protocol.
+     * @param numOfMsgs number of the most recent messages will be returned.
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
+    private void getRecent(int numOfMsgs) throws IOException {
         sendRespond(formatMessages(database.readMessages(numOfMsgs)));
     }
 
+    /**
+     * Formats a list of messages into a server responds specified in the protocol
+     * @param messages list of ChatMessage objects that is about to be send.
+     */
     private String formatMessages(List<ChatMessage> messages) {
         String respond = "MESSAGES " + messages.size() + "\r\n";
         for (ChatMessage chatMessage : messages) {
             respond += "MESSAGE " + chatMessage.getUserName() +
                     " " + chatMessage.getTimestamp() + " "+chatMessage.getMessage() + "\r\n";
         }
-        return respond;
+        return respond.substring(0, respond.length()-2);
     }
 
+    /**
+     * Sends an error message to client
+     * @param error error message
+     * @throws IOException if an I/O error occurs when sending the error message.
+     */
     private void sendError(String error) throws IOException {
         this.error = true;
         String errorMessage = "ERROR " + error + "\r\n";
@@ -168,6 +224,11 @@ public class TCPChatServerSession implements Runnable {
         socket.close();
     }
 
+    /**
+     * Sends a respond message to the client
+     * @param respond respond message
+     * @throws IOException if an I/O error occurs when sending the respond message.
+     */
     private void sendRespond(String respond) throws IOException {
         writer.write(respond + "\r\n");
         writer.flush();

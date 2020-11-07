@@ -8,11 +8,9 @@ import java.io.IOException;
 public class RunServer {
     public static void run(String host, int port, int timeout, String messagesDb, String userDb) throws IOException {
         SecureTextDatabase db = new SecureTextDatabase(
-                new File(".\\data\\messages.db"),
-                new File(".\\data\\user.db")
+                new File(messagesDb),
+                new File(userDb)
         );
-        db.setChatMessageDB(new File(messagesDb));
-        db.setUserDB(new File(userDb));
         TCPChatServer server = new TCPChatServer(port, timeout, db);
         server.start();
     }

@@ -213,21 +213,21 @@ class TCPChatServerTest {
     @Timeout(10000)
     void testGetRecentFailForInvalidNum1() throws IOException {
         send("GET recent messages -1");
-        assertEquals("ERROR Unknown request type.", reader.readLine());
+        assertEquals("ERROR Invalid argument -1.", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetRecentFailForInvalidNum2() throws IOException {
         send("GET recent messages abc");
-        assertEquals("ERROR Unknown request type.", reader.readLine());
+        assertEquals("ERROR Invalid argument abc.", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetRecentFailForInvalidNum3() throws IOException {
         send("GET recent messages @#$%^");
-        assertEquals("ERROR Unknown request type.", reader.readLine());
+        assertEquals("ERROR Invalid argument @#$%^.", reader.readLine());
     }
 
 }

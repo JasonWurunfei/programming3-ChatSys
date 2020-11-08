@@ -8,10 +8,14 @@ import java.net.Socket;
 
 public class SecureTCPClient extends TCPChatClient{
 
-    SecureTCPClient(String serverHost, int serverPort) throws IOException {
+    SecureTCPClient(String serverHost, int serverPort) {
         super(serverHost, serverPort);
     }
 
+    /**
+     * Creates a SSL client socket object
+     * @throws IOException if an I/O error occurs when creating the socket
+     */
     @Override
     public Socket initServerSocket() throws IOException {
         SocketFactory factory = SSLSocketFactory.getDefault();

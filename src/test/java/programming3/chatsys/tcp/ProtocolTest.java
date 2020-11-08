@@ -18,13 +18,6 @@ class ProtocolTest {
     }
 
     @Test
-    void testGetRecentProtocolFailForInvalidNum() {
-        assertNull(Protocol.findMatch("GET recent messages -1"));
-        assertNull(Protocol.findMatch("GET recent messages hah"));
-        assertNull(Protocol.findMatch("GET recent messages #$%"));
-    }
-
-    @Test
     void testGetUnreadProtocol() {
         assertNotNull(Protocol.findMatch("GET unread messages"));
     }

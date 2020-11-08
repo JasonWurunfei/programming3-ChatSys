@@ -20,6 +20,10 @@ public class ThreadClient extends MessageQueue {
         return name;
     }
 
+    /**
+     * Registers the client socket in the server and
+     * send Hello world! to the server.
+     */
     @Override
     public void initialize() {
         this.server.register(this);
@@ -27,12 +31,19 @@ public class ThreadClient extends MessageQueue {
         this.server.send(cm);
     }
 
+    /**
+     * Unregisters the client socket from the server.
+     */
     @Override
     public void shutdown() {
         this.server.unregister(this);
         System.out.println("Client " +this.getName()+" shutdown.");
     }
 
+    /**
+     * Prints out the received message.
+     * @param message received message
+     */
     @Override
     public void handleMessage(ChatMessage message) {
         System.out.println("Client "+this.name+" receiving message > "+ message.getMessage());

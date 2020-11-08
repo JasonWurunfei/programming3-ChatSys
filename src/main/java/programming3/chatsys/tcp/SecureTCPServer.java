@@ -21,6 +21,10 @@ public class SecureTCPServer extends TCPChatServer {
         super(port, timeout, database);
     }
 
+    /**
+     * Creates a SSL server socket object
+     * @throws IOException if an I/O error occurs when creating the socket
+     */
     @Override
     public ServerSocket initServerSocket() throws IOException {
         // referencing from

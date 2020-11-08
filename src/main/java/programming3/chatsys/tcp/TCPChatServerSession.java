@@ -96,7 +96,7 @@ public class TCPChatServerSession implements Runnable {
             switch (matchTuple.type) {
                 case "GET_UNREAD":   getUnread(); break;
                 case "POST_MESSAGE": postMessage(matchTuple.matcher.group("message")); break;
-                case "GET_RECENT":   getRecent(Integer.parseInt(matchTuple.matcher.group("num"))); break;
+                case "GET_RECENT":   getRecent(matchTuple.matcher.group("num")); break;
 
                 case "LOGIN":        login(matchTuple.matcher.group("username"),
                                            matchTuple.matcher.group("password"));break;
@@ -190,11 +190,18 @@ public class TCPChatServerSession implements Runnable {
 
     /**
      * Performs the get recent message operation defined in the protocol.
-     * @param numOfMsgs number of the most recent messages will be returned.
+     * @param num number of the most recent messages will be returned.
      * @throws IOException if an I/O error occurs when sending the error message.
      */
-    private void getRecent(int numOfMsgs) throws IOException {
-        sendRespond(formatMessages(database.readMessages(numOfMsgs)));
+    private void getRecent(String num) throws IOException {
+        try {
+            int numOfMsg = Integer.parseInt(num);
+            if (numOfMsg < 0)
+                throw new NumberFormatException("request negative number of messages");
+            sendRespond(formatMessages(database.readMessages(numOfMsg)));
+        } catch (NumberFormatException e) {
+            sendError("Invalid argument " + num + ".");
+        }
     }
 
     /**

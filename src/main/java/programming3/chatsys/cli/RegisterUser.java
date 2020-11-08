@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 public class RegisterUser {
     public static void main(String[] args) {
-        String userDBPath = "./UserDatabase.txt";
         Scanner input = new Scanner(System.in);
 
         // Ask for user name.

@@ -23,7 +23,7 @@ class TextDatabaseTest {
     User user1 = new User("Jack", "JackMa", "666666");
     User user2 = new User("Jason", "JasonWu", "123456", 1);
     User defaultUser1 = new User("user1\tUser1\tmypassword\t0");
-    User defaultUser2 = new User("user_2\tFull Name\tPassword\t0");
+    User defaultUser2 = new User("user_2\tFull Name\tPassWord\t0");
 
     @BeforeEach
     void setUp() {

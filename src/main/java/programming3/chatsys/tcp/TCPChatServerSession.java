@@ -94,6 +94,7 @@ public class TCPChatServerSession implements Runnable {
         Protocol.MatchTuple matchTuple = Protocol.findMatch(message);
         if (matchTuple != null) {
             switch (matchTuple.type) {
+                case "OK": break;
                 case "GET_UNREAD":   getUnread(); break;
                 case "POST_MESSAGE": postMessage(matchTuple.matcher.group("message")); break;
                 case "GET_RECENT":   getRecent(matchTuple.matcher.group("num")); break;

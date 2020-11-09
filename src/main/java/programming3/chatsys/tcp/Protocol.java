@@ -14,12 +14,13 @@ public class Protocol {
 
     private static final Map<String, Pattern> PATTERNS = new HashMap<>();
     static {
+        PATTERNS.put("OK", Pattern.compile("^OK$"));
         PATTERNS.put("GET_RECENT", Pattern.compile("^GET recent messages (?<num>[^\\s]+)$"));
         PATTERNS.put("GET_UNREAD", Pattern.compile("^GET unread messages$"));
         PATTERNS.put("POST_MESSAGE", Pattern.compile("^POST (?<message>.+[^\\s]+$)"));
         PATTERNS.put("LOGIN", Pattern.compile("^LOGIN (?<username>.+) (?<password>[^\\s]+)$"));
         PATTERNS.put("REGISTER", Pattern.compile(
-                "^REGISTER (?<username>[^\\s]+) (?<fullName>[^\\s]+) (?<password>[^\\s]+)$"));
+                "^REGISTER (?<username>[^\\s]+) (?<fullName>.+) (?<password>[^\\s]+)$"));
     }
 
     /**

@@ -26,7 +26,7 @@ public class TextDatabase implements Database {
         this.userDB = userDB;
         if (!this.userDB.exists()) {
             new User("user1", "User1", "mypassword").save(this.userDB);
-            new User("user_2", "Full Name", "Password").save(this.userDB);
+            new User("user_2", "Full Name", "PassWord").save(this.userDB);
         }
     }
 

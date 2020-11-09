@@ -7,6 +7,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProtocolTest {
 
     @Test
+    void testOK() {
+        assertNotNull(Protocol.findMatch("OK"));
+    }
+
+    @Test
+    void testOKFail() {
+        assertNull(Protocol.findMatch("OK "));
+        assertNull(Protocol.findMatch("OK "));
+        assertNull(Protocol.findMatch(" OK"));
+        assertNull(Protocol.findMatch(" OK "));
+        assertNull(Protocol.findMatch("ok"));
+        assertNull(Protocol.findMatch("Ok"));
+    }
+
+    @Test
     void testGetRecentProtocol() {
         Protocol.MatchTuple tuple = Protocol.findMatch("GET recent messages 1");
         assertEquals("GET_RECENT", tuple.type);
@@ -78,10 +93,10 @@ class ProtocolTest {
 
     @Test
     void testRegisterProtocol() {
-        Protocol.MatchTuple tuple = Protocol.findMatch("REGISTER Jason JasonWu 123456");
+        Protocol.MatchTuple tuple = Protocol.findMatch("REGISTER Jason Jason Wu 123456");
         assertEquals("REGISTER", tuple.type);
         assertEquals("Jason", tuple.matcher.group("username"));
-        assertEquals("JasonWu", tuple.matcher.group("fullName"));
+        assertEquals("Jason Wu", tuple.matcher.group("fullName"));
         assertEquals("123456", tuple.matcher.group("password"));
 
         tuple = Protocol.findMatch("REGISTER Jane JaneDoe password");

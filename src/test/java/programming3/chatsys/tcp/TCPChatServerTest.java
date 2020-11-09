@@ -25,6 +25,8 @@ class TCPChatServerTest {
     BufferedReader reader;
     File userDB = new File(".\\user_test.db");
     File chatMessageDB = new File(".\\message_test.db");
+    final int PORT = 1040;
+    final String HOST = "localhost";
 
     private void send(String message) throws IOException {
         writer.write(message + "\r\n");
@@ -34,7 +36,7 @@ class TCPChatServerTest {
     @BeforeEach
     void setUp() throws IOException {
         db = new SecureTextDatabase(chatMessageDB, userDB);
-        server = new TCPChatServer(1042, 0, db);
+        server = new TCPChatServer(PORT, 0, db);
         serverThread = new Thread(() -> {
             try {
                 server.start();
@@ -43,7 +45,7 @@ class TCPChatServerTest {
             }
         });
         serverThread.start();
-        client = new Socket("localhost", 1042);
+        client = new Socket(HOST, PORT);
         writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
     }

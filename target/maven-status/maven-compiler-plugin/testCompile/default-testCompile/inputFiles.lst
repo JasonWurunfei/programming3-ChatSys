@@ -1,3 +1,7 @@
-D:\Study\OULU\programming3\exercise\src\test\java\programming3\chatsys\data\DatabaseTest.java
-D:\Study\OULU\programming3\exercise\src\test\java\programming3\chatsys\data\ChatMessageTest.java
-D:\Study\OULU\programming3\exercise\src\test\java\programming3\chatsys\data\UserTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\tcp\TCPChatServerTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\tcp\ProtocolTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\data\TextDatabaseTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\data\UserTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\data\SecureTextDatabaseTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\data\ChatMessageTest.java
+D:\Study\OULU\programming3\ChatSys\src\test\java\programming3\chatsys\threads\MessageQueueTest.java

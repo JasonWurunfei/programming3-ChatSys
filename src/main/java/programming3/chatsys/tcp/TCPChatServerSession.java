@@ -147,7 +147,7 @@ public class TCPChatServerSession implements Runnable {
             } else {
                 System.out.println();
                 sendError("register user "+ username + " failed. " +
-                          "\nThis username is taken by other user.");
+                          "This username is taken by other user.");
             }
         } catch (IllegalArgumentException e) {
             if ("userName is invalid".equals(e.getMessage())) {

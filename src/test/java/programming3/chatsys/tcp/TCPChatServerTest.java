@@ -101,6 +101,14 @@ class TCPChatServerTest {
 
     @Test
     @Timeout(10000)
+    void testRegisterFailForUsernameIsTaken() throws IOException {
+        send("REGISTER user1 user_1 123456");
+        assertEquals("ERROR register user user1 failed. " +
+                "This username is taken by other user.", reader.readLine());
+    }
+
+    @Test
+    @Timeout(10000)
     void testRegisterFailForInvalidUsername1() throws IOException {
         send("REGISTER user@ user_1 123456");
         assertEquals("ERROR userName is invalid.", reader.readLine());

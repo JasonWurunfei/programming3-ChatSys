@@ -15,6 +15,10 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 
+/**
+ * Represents a TCP server with SSL protection
+ * @author Wu Runfei (Jason SE181)
+ */
 public class SecureTCPServer extends TCPChatServer {
 
     public SecureTCPServer(int port, int timeout, Database database) {

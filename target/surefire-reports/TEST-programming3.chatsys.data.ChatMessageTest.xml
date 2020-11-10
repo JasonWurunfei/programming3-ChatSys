@@ -18,7 +18,7 @@
     <property name="user.country" value="CN"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_241\jre\bin"/>
-    <property name="sun.java.command" value="C:\Users\pc\AppData\Local\Temp\surefire2578569727074729758\surefirebooter3967941849026873981.jar C:\Users\pc\AppData\Local\Temp\surefire2578569727074729758 2020-11-09T14-24-42_573-jvmRun1 surefire2271702536987606705tmp surefire_06923547072953943238tmp"/>
+    <property name="sun.java.command" value="C:\Users\pc\AppData\Local\Temp\surefire3594935345683921573\surefirebooter1875918421012319819.jar C:\Users\pc\AppData\Local\Temp\surefire3594935345683921573 2020-11-09T14-47-51_643-jvmRun1 surefire8172677087966278451tmp surefire_05714805326017530793tmp"/>
     <property name="surefire.test.class.path" value="D:\Study\OULU\programming3\ChatSys\target\test-classes;D:\Study\OULU\programming3\ChatSys\target\classes;D:\maven_repo\org\junit\jupiter\junit-jupiter-api\5.7.0\junit-jupiter-api-5.7.0.jar;D:\maven_repo\org\apiguardian\apiguardian-api\1.1.0\apiguardian-api-1.1.0.jar;D:\maven_repo\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;D:\maven_repo\org\junit\platform\junit-platform-commons\1.7.0\junit-platform-commons-1.7.0.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\pc"/>
@@ -31,7 +31,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="C:\Users\pc\AppData\Local\Temp\surefire2578569727074729758\surefirebooter3967941849026873981.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\pc\AppData\Local\Temp\surefire3594935345683921573\surefirebooter1875918421012319819.jar"/>
     <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_241\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_241\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_241\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_241\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_241\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_241\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_241\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_241\jre\classes"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>

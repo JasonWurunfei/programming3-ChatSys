@@ -55,12 +55,12 @@ public class TCPChatServerSession implements Runnable {
             e.printStackTrace();
         }
 
-        System.out.println("session " + this.socket + " ended.");
         try {
             disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("session " + this.socket + " ended.");
     }
 
     /**
@@ -75,7 +75,7 @@ public class TCPChatServerSession implements Runnable {
 
 
     /**
-     * Release all the resources and close the socket
+     * Release all the resources and close the socket.
      * @throws IOException if an I/O error occurs when closing the resources.
      */
     private void disconnect() throws IOException {
@@ -206,7 +206,7 @@ public class TCPChatServerSession implements Runnable {
     }
 
     /**
-     * Formats a list of messages into a server responds specified in the protocol
+     * Formats a list of messages into a server responds specified in the protocol.
      * @param messages list of ChatMessage objects that is about to be send.
      */
     private String formatMessages(List<ChatMessage> messages) {
@@ -219,21 +219,19 @@ public class TCPChatServerSession implements Runnable {
     }
 
     /**
-     * Sends an error message to client
+     * Sends an error message to client.
      * @param error error message
      * @throws IOException if an I/O error occurs when sending the error message.
      */
     private void sendError(String error) throws IOException {
-        this.error = true;
-        String errorMessage = "ERROR " + error + "\r\n";
+        String errorMessage = "ERROR " + error;
         System.out.println(errorMessage);
-        writer.write(errorMessage);
-        writer.flush();
-        socket.close();
+        sendRespond(errorMessage);
+        this.error = true;
     }
 
     /**
-     * Sends a respond message to the client
+     * Sends a respond message to the client.
      * @param respond respond message
      * @throws IOException if an I/O error occurs when sending the respond message.
      */

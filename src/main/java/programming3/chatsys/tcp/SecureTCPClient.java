@@ -6,6 +6,10 @@ import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * Represents a client used to connect to a TCP server with SSL protection
+ * @author Wu Runfei (Jason SE181)
+ */
 public class SecureTCPClient extends TCPChatClient{
 
     SecureTCPClient(String serverHost, int serverPort) {

@@ -1,5 +1,7 @@
 package programming3.chatsys.tcp;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import programming3.chatsys.data.ChatMessage;
 import programming3.chatsys.data.Database;
 import programming3.chatsys.data.User;
@@ -27,6 +29,7 @@ public class TCPChatServerSession implements Runnable {
     private BufferedWriter writer;
     private boolean error = false;
     private User authenticatedUser = null;
+    private JSONProtocol protocol;
 
     TCPChatServerSession(Database database, Socket socket) {
         this.database = database;
@@ -51,7 +54,7 @@ public class TCPChatServerSession implements Runnable {
             System.out.println("Socket timeout.");
         } catch (SocketException e) {
             System.out.println("Socket closed by client promptly.");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -71,6 +74,7 @@ public class TCPChatServerSession implements Runnable {
     private void initInputOutput() throws IOException {
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        protocol = new JSONProtocol(writer);
     }
 
 
@@ -91,20 +95,27 @@ public class TCPChatServerSession implements Runnable {
      * @throws IOException if an I/O error occurs when sending the error message.
      */
     private void handleMessage(String message) throws IOException {
-        Protocol.MatchTuple matchTuple = Protocol.findMatch(message);
-        if (matchTuple != null) {
-            switch (matchTuple.type) {
-                case "OK": break;
-                case "GET_UNREAD":   getUnread(); break;
-                case "POST_MESSAGE": postMessage(matchTuple.matcher.group("message")); break;
-                case "GET_RECENT":   getRecent(matchTuple.matcher.group("num")); break;
+        JSONObject jsonMessage = null;
+        try {
+            jsonMessage = new JSONObject(message);
+        } catch (JSONException e) {
+            sendError("request must be in JSON format.");
+            return;
+        }
+        String type = jsonMessage.optString("type");
+        if (type != null) {
+            switch (type) {
+                case "ok": break;
+                case "getunread":   getUnread();break;
+                case "post":        postMessage(jsonMessage.optString("message"));break;
+                case "getrecent":   getRecent(jsonMessage.optInt("n"));break;
 
-                case "LOGIN":        login(matchTuple.matcher.group("username"),
-                                           matchTuple.matcher.group("password"));break;
+                case "login":       login(jsonMessage.optString("username"),
+                                          jsonMessage.optString("password"));break;
 
-                case "REGISTER":     register(matchTuple.matcher.group("username"),
-                                              matchTuple.matcher.group("fullName"),
-                                              matchTuple.matcher.group("password")); break;
+                case "register":    register(jsonMessage.optString("username"),
+                                             jsonMessage.optString("fullname"),
+                                             jsonMessage.optString("password"));break;
             }
         } else {
             sendError("Unknown request type.");
@@ -118,12 +129,15 @@ public class TCPChatServerSession implements Runnable {
      * @throws IOException if an I/O error occurs when sending the error message.
      */
     private void login(String username, String password) throws IOException {
-        System.out.println("login user: " + username);
+        if (username == null) {sendError("Username not provided.");return;}
+        if (password == null) {sendError("password not provided.");return;}
 
-        if((authenticatedUser = database.getUserIfAuthenticated(username, password)) != null) {
-            sendRespond("OK");
+        System.out.println("login user: " + username);
+        authenticatedUser = database.getUserIfAuthenticated(username, password);
+        if(authenticatedUser != null) {
+            this.sendOk();
         } else {
-            sendError("Wrong username or password.");
+            this.sendError("Wrong username or password.");
         }
     }
 
@@ -135,6 +149,10 @@ public class TCPChatServerSession implements Runnable {
      * @throws IOException if an I/O error occurs when sending the error message.
      */
     private void register(String username, String fullName, String password) throws IOException {
+        if (username == null) {this.sendError("Username not provided.");return;}
+        if (fullName == null) {this.sendError("full name not provided.");return;}
+        if (password == null) {this.sendError("password not provided.");return;}
+
         System.out.println("registering user ...");
         System.out.println("fullName > " + username);
         System.out.println("fullName > " + fullName);
@@ -143,17 +161,16 @@ public class TCPChatServerSession implements Runnable {
         try {
             if(database.register(new User(username, fullName, password))) {
                 System.out.println("register user "+ username + " success.");
-                sendRespond("OK");
+                this.sendOk();
             } else {
-                System.out.println();
-                sendError("register user "+ username + " failed. " +
+                this.sendError("register user "+ username + " failed. " +
                           "This username is taken by other user.");
             }
         } catch (IllegalArgumentException e) {
             if ("userName is invalid".equals(e.getMessage())) {
-                sendError("userName is invalid.");
+                this.sendError("userName is invalid.");
             } else {
-                sendError("error occurred when registering.");
+                this.sendError("error occurred when registering.");
             }
         }
     }
@@ -164,13 +181,15 @@ public class TCPChatServerSession implements Runnable {
      * @throws IOException if an I/O error occurs when sending the error message.
      */
     private void postMessage(String message) throws IOException {
+        if (message == null) {this.sendError("Post messages not provided.");return;}
+
         if (authenticatedUser != null) {
             database.addMessage(authenticatedUser.getUserName(), message);
             System.out.println("user: " + authenticatedUser.getUserName() +
                     "\npost message: " + message);
-            sendRespond("OK");
+            this.sendOk();
         } else {
-            sendError("User is not authenticated.");
+            this.sendError("User is not authenticated.");
         }
     }
 
@@ -181,11 +200,11 @@ public class TCPChatServerSession implements Runnable {
     private void getUnread() throws IOException {
         System.out.println("getUnread");
         if (authenticatedUser != null) {
-            sendRespond(formatMessages(database.getUnreadMessages(
+            this.sendRespond(formatMessages(database.getUnreadMessages(
                     authenticatedUser.getUserName()
             )));
         } else {
-            sendError("User is not authenticated.");
+            this.sendError("User is not authenticated.");
         }
     }
 
@@ -194,14 +213,11 @@ public class TCPChatServerSession implements Runnable {
      * @param num number of the most recent messages will be returned.
      * @throws IOException if an I/O error occurs when sending the error message.
      */
-    private void getRecent(String num) throws IOException {
-        try {
-            int numOfMsg = Integer.parseInt(num);
-            if (numOfMsg < 0)
-                throw new NumberFormatException("request negative number of messages");
-            sendRespond(formatMessages(database.readMessages(numOfMsg)));
-        } catch (NumberFormatException e) {
-            sendError("Invalid argument " + num + ".");
+    private void getRecent(int num) throws IOException {
+        if (num > 0)
+            this.sendRespond(formatMessages(database.readMessages(num)));
+        else {
+            this.sendError("request 0 or invalid number of messages");
         }
     }
 
@@ -210,11 +226,20 @@ public class TCPChatServerSession implements Runnable {
      * @param messages list of ChatMessage objects that is about to be send.
      */
     private String formatMessages(List<ChatMessage> messages) {
-        String respond = "MESSAGES " + messages.size() + "\r\n";
+        String respond = "";
+
+        JSONObject numberOfMessages = new JSONObject();
+        numberOfMessages.put("type", "messages");
+        numberOfMessages.put("n", messages.size());
+        respond += numberOfMessages.toString() + "\r\n";
+
+        JSONObject message = new JSONObject();
         for (ChatMessage chatMessage : messages) {
-            respond += "MESSAGE " + chatMessage.getUserName() +
-                    " " + chatMessage.getTimestamp() + " "+chatMessage.getMessage() + "\r\n";
+            message.put("type", "message");
+            message.put("message", protocol.formatChatMessage(chatMessage));
+            respond += message.toString() + "\r\n";
         }
+
         return respond.substring(0, respond.length()-2);
     }
 
@@ -224,9 +249,11 @@ public class TCPChatServerSession implements Runnable {
      * @throws IOException if an I/O error occurs when sending the error message.
      */
     private void sendError(String error) throws IOException {
-        String errorMessage = "ERROR " + error;
-        System.out.println(errorMessage);
-        sendRespond(errorMessage);
+        JSONObject jsonError = new JSONObject();
+        jsonError.put("type", "error");
+        jsonError.put("message", error);
+        System.out.println("[ERROR]: " + jsonError.toString());
+        this.sendRespond(jsonError.toString());
         this.error = true;
     }
 
@@ -239,4 +266,9 @@ public class TCPChatServerSession implements Runnable {
         writer.write(respond + "\r\n");
         writer.flush();
     }
+
+    private void sendOk() throws IOException {
+        this.sendRespond("{\"type\":\"ok\"}");
+    }
+
 }

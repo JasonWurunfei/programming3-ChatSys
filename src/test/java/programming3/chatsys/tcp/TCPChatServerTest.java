@@ -69,29 +69,29 @@ class TCPChatServerTest {
     @Test
     @Timeout(10000)
     void testLoginSuccess() throws IOException {
-        send("LOGIN user1 mypassword");
-        assertEquals("OK", reader.readLine());
+        send("{\"type\":\"login\", \"username\":\"user1\",\"password\":\"mypassword\"}");
+        assertEquals("{\"type\":\"ok\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testLoginFailForIncorrectPassword() throws IOException {
-        send("LOGIN user1 mypassword1");
-        assertEquals("ERROR Wrong username or password.", reader.readLine());
+        send("{\"type\":\"login\", \"username\":\"user1\",\"password\":\"mypassword1\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"Wrong username or password.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testLoginFailForIncorrectUsername() throws IOException {
-        send("LOGIN user mypassword");
-        assertEquals("ERROR Wrong username or password.", reader.readLine());
+        send("{\"type\":\"login\", \"username\":\"user\",\"password\":\"mypassword\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"Wrong username or password.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testRegisterSuccess() throws IOException {
-        send("REGISTER user user_1 123456");
-        assertEquals("OK", reader.readLine());
+        send("{\"type\":\"register\", \"username\":\"user\",\"fullname\":\"user_1\",\"password\":\"123456\"}");
+        assertEquals("{\"type\":\"ok\"}", reader.readLine());
         User user = db.readUsers().get("user");
         assertNotNull(user);
         assertEquals("user", user.getUserName());
@@ -102,45 +102,45 @@ class TCPChatServerTest {
     @Test
     @Timeout(10000)
     void testRegisterFailForUsernameIsTaken() throws IOException {
-        send("REGISTER user1 user_1 123456");
-        assertEquals("ERROR register user user1 failed. " +
-                "This username is taken by other user.", reader.readLine());
+        send("{\"type\":\"register\", \"username\":\"user1\",\"fullname\":\"user_1\",\"password\":\"123456\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"register user user1 failed. " +
+                "This username is taken by other user.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
-    void testRegisterFailForInvalidUsername1() throws IOException {
-        send("REGISTER user@ user_1 123456");
-        assertEquals("ERROR userName is invalid.", reader.readLine());
+    void testRegisterFailForInvalidCharacterInUsername() throws IOException {
+        send("{\"type\":\"register\", \"username\":\"user@\",\"fullname\":\"user_1\",\"password\":\"123456\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"userName is invalid.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
-    void testRegisterFailForInvalidUsername2() throws IOException {
-        send("REGISTER 吴润飞 user_1 123456");
-        assertEquals("ERROR userName is invalid.", reader.readLine());
+    void testRegisterFailForChineseUsername() throws IOException {
+        send("{\"type\":\"register\", \"username\":\"吴润飞\",\"fullname\":\"user_1\",\"password\":\"123456\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"userName is invalid.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testRegisterFailForInvalidFullName() throws IOException {
-        send("REGISTER user use\nr_1 123456");
-        assertEquals("ERROR Unknown request type.", reader.readLine());
+        send("{\"type\":\"register\", \"username\":\"user\",\"fullname\":\"user\n_1\",\"password\":\"123456\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"request must be in JSON format.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testPostMessagesSuccess() throws IOException {
         // login first
-        send("LOGIN user1 mypassword");
-        assertEquals("OK", reader.readLine());
+        send("{\"type\":\"login\", \"username\":\"user1\",\"password\":\"mypassword\"}");
+        assertEquals("{\"type\":\"ok\"}", reader.readLine());
 
         // send messages
         String message = "HAHAHA";
-        send("POST 1"+ message);
-        assertEquals("OK", reader.readLine());
-        send("POST 2"+ message);
-        assertEquals("OK", reader.readLine());
+        send("{\"type\":\"post\", \"message\":\"1"+message+"\"}");
+        assertEquals("{\"type\":\"ok\"}", reader.readLine());
+        send("{\"type\":\"post\", \"message\":\"2"+message+"\"}");
+        assertEquals("{\"type\":\"ok\"}", reader.readLine());
 
         ChatMessage cm1 = db.readMessages().get(0);
         assertEquals(1 , cm1.getId());
@@ -158,86 +158,96 @@ class TCPChatServerTest {
     void testPostMessagesFailForNotAuthenticated() throws IOException {
         // send messages
         String message = "HAHAHA";
-        send("POST "+ message);
-        assertEquals("ERROR User is not authenticated.", reader.readLine());
+        send("{\"type\":\"post\", \"message\":\""+message+"\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"User is not authenticated.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetUnreadSuccess() throws IOException, InterruptedException {
         // login first
-        send("LOGIN user1 mypassword");
-        assertEquals("OK", reader.readLine());
+        send("{\"type\":\"login\", \"username\":\"user1\",\"password\":\"mypassword\"}");
+        assertEquals("{\"type\":\"ok\"}", reader.readLine());
 
-        send("GET unread messages");
-        assertEquals("MESSAGES 0", reader.readLine());
+        send("{\"type\":\"getunread\"}");
+        assertEquals("{\"type\":\"messages\",\"n\":0}", reader.readLine());
 
         // add unread messages
         new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo").save(chatMessageDB);
         new ChatMessage(2, "Ana", new Timestamp(200000), "Hello").save(chatMessageDB);
         Thread.sleep(100);
-        send("GET unread messages");
+        send("{\"type\":\"getunread\"}");
 
-        assertEquals("MESSAGES 2", reader.readLine());
-        assertEquals("MESSAGE Jack_1 " + new Timestamp(100000) + " Haloo", reader.readLine());
-        assertEquals("MESSAGE Ana " + new Timestamp(200000) + " Hello", reader.readLine());
+        assertEquals("{\"type\":\"messages\",\"n\":2}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":" +
+                "{\"id\":1,\"message\":\"Haloo\",\"username\":\"Jack_1\",\"timestamp\":100000}}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":" +
+                "{\"id\":2,\"message\":\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
 
-        send("GET unread messages");
-        assertEquals("MESSAGES 0", reader.readLine());
+        send("{\"type\":\"getunread\"}");
+        assertEquals("{\"type\":\"messages\",\"n\":0}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetUnreadFailForNotAuthenticated() throws IOException {
-        send("GET unread messages");
-        assertEquals("ERROR User is not authenticated.", reader.readLine());
+        send("{\"type\":\"getunread\"}");
+        assertEquals("{\"type\":\"error\",\"message\":\"User is not authenticated.\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetRecentSuccess() throws IOException, InterruptedException {
-        send("GET recent messages 10");
-        assertEquals("MESSAGES 0", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":10}");
+        assertEquals("{\"type\":\"messages\",\"n\":0}", reader.readLine());
 
         // add unread messages
         new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo").save(chatMessageDB);
         new ChatMessage(2, "Ana", new Timestamp(200000), "Hello").save(chatMessageDB);
         Thread.sleep(100);
 
-        send("GET recent messages 1");
-        assertEquals("MESSAGES 1", reader.readLine());
-        assertEquals("MESSAGE Ana " + new Timestamp(200000) + " Hello", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":1}");
+        assertEquals("{\"type\":\"messages\",\"n\":1}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":{\"id\":2,\"message\":" +
+                "\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
 
-        send("GET recent messages 2");
-        assertEquals("MESSAGES 2", reader.readLine());
-        assertEquals("MESSAGE Jack_1 " + new Timestamp(100000) + " Haloo", reader.readLine());
-        assertEquals("MESSAGE Ana " + new Timestamp(200000) + " Hello", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":2}");
+        assertEquals("{\"type\":\"messages\",\"n\":2}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":{\"id\":1,\"message\":" +
+                "\"Haloo\",\"username\":\"Jack_1\",\"timestamp\":100000}}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":{\"id\":2,\"message\":" +
+                "\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
 
-        send("GET recent messages 10");
-        assertEquals("MESSAGES 2", reader.readLine());
-        assertEquals("MESSAGE Jack_1 " + new Timestamp(100000) + " Haloo", reader.readLine());
-        assertEquals("MESSAGE Ana " + new Timestamp(200000) + " Hello", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":10}");
+        assertEquals("{\"type\":\"messages\",\"n\":2}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":{\"id\":1,\"message\":" +
+                "\"Haloo\",\"username\":\"Jack_1\",\"timestamp\":100000}}", reader.readLine());
+        assertEquals("{\"type\":\"message\",\"message\":{\"id\":2,\"message\":" +
+                "\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetRecentFailForInvalidNum1() throws IOException {
-        send("GET recent messages -1");
-        assertEquals("ERROR Invalid argument -1.", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":-1}");
+        assertEquals("{\"type\":\"error\",\"message\":" +
+                "\"request 0 or invalid number of messages\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetRecentFailForInvalidNum2() throws IOException {
-        send("GET recent messages abc");
-        assertEquals("ERROR Invalid argument abc.", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":abc}");
+        assertEquals("{\"type\":\"error\",\"message\":" +
+                "\"request 0 or invalid number of messages\"}", reader.readLine());
     }
 
     @Test
     @Timeout(10000)
     void testGetRecentFailForInvalidNum3() throws IOException {
-        send("GET recent messages @#$%^");
-        assertEquals("ERROR Invalid argument @#$%^.", reader.readLine());
+        send("{\"type\":\"getrecent\", \"n\":@#$%^}");
+        assertEquals("{\"type\":\"error\",\"message\":" +
+                "\"request must be in JSON format.\"}", reader.readLine());
     }
 
 }

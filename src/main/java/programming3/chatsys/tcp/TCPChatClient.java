@@ -1,5 +1,7 @@
 package programming3.chatsys.tcp;
 
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -70,12 +72,12 @@ public class TCPChatClient {
      * @throws IOException if an I/O error occurs.
      */
     public void requestMessages(int numOfMsgs) throws IOException {
-        this.send("GET recent messages "+numOfMsgs);
+        this.send("{\"type\":\"getrecent\", \"n\":"+numOfMsgs+"}");
         String line = this.reader.readLine();
         System.out.println(line);
+        JSONObject obj = new JSONObject(line);
 
-        int num = Integer.parseInt(line.split(" ")[1]);
-        for (int i = 0; i < num; i++) {
+        for (int i = 0; i < obj.getInt("n"); i++) {
             line = this.reader.readLine();
             System.out.println(line);
         }

@@ -56,6 +56,18 @@ public class ChatMessage extends TextDatabaseItem {
     }
 
     /**
+     * Constructor of ChatMessage class used to create a new ChatMessage object.
+     * The object is created with its attributes set according to the given params.
+     *
+     * @param userName name of the owner of this ChatMessage
+     * @param timestamp time at which this ChatMessage was sent
+     * @param message message of this ChatMessage
+     */
+    public ChatMessage(String userName, Timestamp timestamp, String message) {
+        init(-1, userName, timestamp, message);
+    }
+
+    /**
      * Similar implementation as "ChatSys - base" provided from Moodle.
      * My old implementation at 6981aea (commit hash)
      *

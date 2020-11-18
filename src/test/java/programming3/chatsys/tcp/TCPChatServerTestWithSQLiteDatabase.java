@@ -4,29 +4,49 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import programming3.chatsys.data.ChatMessage;
-import programming3.chatsys.data.SecureTextDatabase;
-import programming3.chatsys.data.User;
+import programming3.chatsys.data.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.sql.Timestamp;
+import java.sql.*;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class TCPChatServerTest {
+class TCPChatServerTestWithSQLiteDatabase {
 
     Socket client;
     Thread serverThread;
     TCPChatServer server;
-    SecureTextDatabase db;
+    SQLiteDatabase db;
     BufferedWriter writer;
     BufferedReader reader;
-    File userDB = new File(".\\user_test.db");
-    File chatMessageDB = new File(".\\message_test.db");
+    String DBPath = "testDB.sqlite";
+    File DbFile = new File(DBPath);
+    Connection connection;
+
     final int PORT = 1040;
     final String HOST = "localhost";
+
+    private void createTable(Connection connection) throws SQLException {
+        String query = "CREATE TABLE IF NOT EXISTS user (" +
+                "id integer PRIMARY KEY," +
+                "username text NOT NULL UNIQUE," +
+                "fullname text NOT NULL," +
+                "password text NOT NULL," +
+                "last_read_id integer DEFAULT 0" +
+                ");";
+        Statement statement = connection.createStatement();
+        statement.execute(query);
+        query = "CREATE TABLE IF NOT EXISTS chatmessage (" +
+                "id integer PRIMARY KEY," +
+                "user integer NOT NULL," +
+                "time integer NOT NULL," +
+                "message text NOT NULL" +
+                ");";
+        statement = connection.createStatement();
+        statement.execute(query);
+    }
 
     private void send(String message) throws IOException {
         writer.write(message + "\r\n");
@@ -34,8 +54,26 @@ class TCPChatServerTest {
     }
 
     @BeforeEach
-    void setUp() throws IOException {
-        db = new SecureTextDatabase(chatMessageDB, userDB);
+    void setUp() throws IOException, SQLException {
+        db = new SQLiteDatabase(DBPath);
+        connection = DriverManager.getConnection("jdbc:sqlite:" + DBPath);
+        this.createTable(connection);
+        // add unread messages
+        PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO chatmessage(user, time, message) SELECT id, ?, ? FROM user WHERE username = ?;"
+        );
+        statement.setLong(1, new Timestamp(100000).getTime());
+        statement.setString(2, "Haloo");
+        statement.setString(3, "user1");
+        statement.executeUpdate();
+
+        statement = connection.prepareStatement(
+                "INSERT INTO chatmessage(user, time, message) SELECT id, ?, ? FROM user WHERE username = ?;"
+        );
+        statement.setLong(1, new Timestamp(200000).getTime());
+        statement.setString(2, "Hello");
+        statement.setString(3, "user_2");
+        statement.executeUpdate();
         server = new TCPChatServer(PORT, 0, db);
         serverThread = new Thread(() -> {
             try {
@@ -51,16 +89,18 @@ class TCPChatServerTest {
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void tearDown() throws IOException, SQLException {
         server.stop();
+        db.close();
+        connection.close();
         server = null;
         db = null;
         serverThread = null;
+        connection = null;
 
-        if (chatMessageDB.exists())
-            chatMessageDB.delete();
-        if (userDB.exists())
-            userDB.delete();
+        if (DbFile.exists())
+            DbFile.delete();
+
 
         writer.close();
         client.close();
@@ -142,13 +182,13 @@ class TCPChatServerTest {
         send("{\"type\":\"post\", \"message\":\"2"+message+"\"}");
         assertEquals("{\"type\":\"ok\"}", reader.readLine());
 
-        ChatMessage cm1 = db.readMessages().get(0);
-        assertEquals(1 , cm1.getId());
+        ChatMessage cm1 = db.readMessages().get(2);
+        assertEquals(3 , cm1.getId());
         assertEquals("1" + message , cm1.getMessage());
         assertEquals("user1" , cm1.getUserName());
 
-        ChatMessage cm2 = db.readMessages().get(1);
-        assertEquals(2 , cm2.getId());
+        ChatMessage cm2 = db.readMessages().get(3);
+        assertEquals(4 , cm2.getId());
         assertEquals("2" + message , cm2.getMessage());
         assertEquals("user1" , cm2.getUserName());
     }
@@ -164,25 +204,19 @@ class TCPChatServerTest {
 
     @Test
     @Timeout(10000)
-    void testGetUnreadSuccess() throws IOException, InterruptedException {
+    void testGetUnreadSuccess() throws IOException, InterruptedException, SQLException {
         // login first
         send("{\"type\":\"login\", \"username\":\"user1\",\"password\":\"mypassword\"}");
         assertEquals("{\"type\":\"ok\"}", reader.readLine());
 
-        send("{\"type\":\"getunread\"}");
-        assertEquals("{\"type\":\"messages\",\"n\":0}", reader.readLine());
-
-        // add unread messages
-        new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo").save(chatMessageDB);
-        new ChatMessage(2, "Ana", new Timestamp(200000), "Hello").save(chatMessageDB);
         Thread.sleep(100);
         send("{\"type\":\"getunread\"}");
 
         assertEquals("{\"type\":\"messages\",\"n\":2}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":" +
-                "{\"id\":1,\"message\":\"Haloo\",\"username\":\"Jack_1\",\"timestamp\":100000}}", reader.readLine());
+                "{\"id\":1,\"message\":\"Haloo\",\"username\":\"user1\",\"timestamp\":100000}}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":" +
-                "{\"id\":2,\"message\":\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
+                "{\"id\":2,\"message\":\"Hello\",\"username\":\"user_2\",\"timestamp\":200000}}", reader.readLine());
 
         send("{\"type\":\"getunread\"}");
         assertEquals("{\"type\":\"messages\",\"n\":0}", reader.readLine());
@@ -198,32 +232,25 @@ class TCPChatServerTest {
     @Test
     @Timeout(10000)
     void testGetRecentSuccess() throws IOException, InterruptedException {
-        send("{\"type\":\"getrecent\", \"n\":10}");
-        assertEquals("{\"type\":\"messages\",\"n\":0}", reader.readLine());
-
-        // add unread messages
-        new ChatMessage(1, "Jack_1", new Timestamp(100000), "Haloo").save(chatMessageDB);
-        new ChatMessage(2, "Ana", new Timestamp(200000), "Hello").save(chatMessageDB);
-        Thread.sleep(100);
 
         send("{\"type\":\"getrecent\", \"n\":1}");
         assertEquals("{\"type\":\"messages\",\"n\":1}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":{\"id\":2,\"message\":" +
-                "\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
+                "\"Hello\",\"username\":\"user_2\",\"timestamp\":200000}}", reader.readLine());
 
         send("{\"type\":\"getrecent\", \"n\":2}");
         assertEquals("{\"type\":\"messages\",\"n\":2}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":{\"id\":1,\"message\":" +
-                "\"Haloo\",\"username\":\"Jack_1\",\"timestamp\":100000}}", reader.readLine());
+                "\"Haloo\",\"username\":\"user1\",\"timestamp\":100000}}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":{\"id\":2,\"message\":" +
-                "\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
+                "\"Hello\",\"username\":\"user_2\",\"timestamp\":200000}}", reader.readLine());
 
         send("{\"type\":\"getrecent\", \"n\":10}");
         assertEquals("{\"type\":\"messages\",\"n\":2}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":{\"id\":1,\"message\":" +
-                "\"Haloo\",\"username\":\"Jack_1\",\"timestamp\":100000}}", reader.readLine());
+                "\"Haloo\",\"username\":\"user1\",\"timestamp\":100000}}", reader.readLine());
         assertEquals("{\"type\":\"message\",\"message\":{\"id\":2,\"message\":" +
-                "\"Hello\",\"username\":\"Ana\",\"timestamp\":200000}}", reader.readLine());
+                "\"Hello\",\"username\":\"user_2\",\"timestamp\":200000}}", reader.readLine());
     }
 
     @Test

@@ -73,6 +73,12 @@ public interface Database {
      */
     boolean authenticate(String userName, String password);
 
+    /**
+     * Get the user object if the username and password are matching.
+     * @param userName the name of the user
+     * @param password the password of the user
+     * @return user object if the username and password are matching otherwise, null.
+     */
     User getUserIfAuthenticated(String userName, String password);
 
     /**

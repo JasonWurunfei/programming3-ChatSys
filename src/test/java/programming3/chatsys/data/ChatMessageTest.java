@@ -39,7 +39,7 @@ public class ChatMessageTest {
     @Test
     public void parseWithNotEnoughTabulations() {
         assertThrows(IllegalArgumentException.class, () -> {
-            cm.parse("Jack@\t"+time+"\tHAHA");
+            cm.parse("Jack\t"+time+"\tHAHA");
         },"The String does not contain enough tabulations and cannot be parsed");
     }
 

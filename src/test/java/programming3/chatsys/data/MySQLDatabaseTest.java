@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,11 +12,15 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SQLiteDatabaseTest {
-    SQLiteDatabase db;
-    String DBPath = "testDB.sqlite";
+class MySQLDatabaseTest {
+    MySQLDatabase db;
+    final String MYSQL_HOST = "localhost";
+    final String MYSQL_USERNAME = "root";
+    final String MYSQL_PASSWORD = "123456";
+    final String MYSQL_DB_NAME = "testDB";
+    final int MYSQL_PORT = 3306;
+
     Connection connection;
-    File DbFile = new File(DBPath);
 
     ChatMessage cm1 = new ChatMessage(1, "Jack", new Timestamp(100000), "Haloo");
     ChatMessage cm2 = new ChatMessage(2, "Jason", new Timestamp(200000), "Hello");
@@ -28,19 +31,21 @@ class SQLiteDatabaseTest {
     User defaultUser2 = new User("user_2\tFull Name\tPassWord\t0");
 
     private void createTable(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute("use " + MYSQL_DB_NAME + ";");
         String query = "CREATE TABLE IF NOT EXISTS user (" +
-                "id integer PRIMARY KEY," +
-                "username text NOT NULL UNIQUE," +
+                "id integer PRIMARY KEY AUTO_INCREMENT," +
+                "username VARCHAR(255) NOT NULL UNIQUE," +
                 "fullname text NOT NULL," +
                 "password text NOT NULL," +
                 "last_read_id integer DEFAULT 0" +
                 ");";
-        Statement statement = connection.createStatement();
+        statement = connection.createStatement();
         statement.execute(query);
         query = "CREATE TABLE IF NOT EXISTS chatmessage (" +
-                "id integer PRIMARY KEY," +
+                "id integer PRIMARY KEY AUTO_INCREMENT," +
                 "user integer NOT NULL," +
-                "time integer NOT NULL," +
+                "time BIGINT NOT NULL," +
                 "message text NOT NULL" +
                 ");";
         statement = connection.createStatement();
@@ -88,21 +93,30 @@ class SQLiteDatabaseTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        db = new SQLiteDatabase(DBPath);
-        connection = DriverManager.getConnection("jdbc:sqlite:" + DBPath);
+        db = new MySQLDatabase(
+                MYSQL_HOST,
+                MYSQL_PORT,
+                MYSQL_DB_NAME,
+                MYSQL_USERNAME,
+                MYSQL_PASSWORD
+        );
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://"+MYSQL_HOST+":"+MYSQL_PORT+"/?serverTimezone=UTC",
+                MYSQL_USERNAME, MYSQL_PASSWORD
+        );
         this.createTable(connection);
         this.loadTestData(connection);
-
     }
 
     @AfterEach
     void tearDown() throws SQLException {
+        String query = "DROP DATABASE "+ MYSQL_DB_NAME + ";";
+        Statement statement = connection.createStatement();
+        statement.execute(query);
         db.close();
         connection.close();
         connection = null;
         db = null;
-        if (DbFile.exists())
-            DbFile.delete();
     }
 
     @Test

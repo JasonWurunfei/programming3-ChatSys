@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
-public class SQLDatabase implements Database {
+public abstract class SQLDatabase implements Database {
     protected Connection connection;
 
     /**
@@ -17,6 +17,16 @@ public class SQLDatabase implements Database {
     }
 
     /**
+     * add default users when database is created.
+     */
+    protected void addDefaultUsers() {
+        if (this.readUsers().size() == 0) {
+            this.register(new User("user1\tUser1\tmypassword\t0"));
+            this.register(new User("user_2\tFull Name\tPassWord\t0"));
+        }
+    }
+
+    /**
      * Create user table if it is not exist in the SQLite database
      *
      * @throws SQLException        if a database access error occurs or the methods is called
@@ -26,17 +36,7 @@ public class SQLDatabase implements Database {
      *                             that was specified by the setQueryTimeout method has been exceeded and has at
      *                             least attempted to cancel the currently running Statement
      */
-    public void createUserTable() throws SQLException {
-        String query = "CREATE TABLE IF NOT EXISTS user (" +
-                            "id integer PRIMARY KEY," +
-                            "username text NOT NULL UNIQUE," +
-                            "fullname text NOT NULL," +
-                            "password text NOT NULL," +
-                            "last_read_id integer DEFAULT 0" +
-                       ");";
-        Statement statement = connection.createStatement();
-        statement.execute(query);
-    }
+    abstract public void createUserTable() throws SQLException;
 
     /**
      * Create chatmessage table if it is not exist in the SQLite database
@@ -48,16 +48,7 @@ public class SQLDatabase implements Database {
      *                             that was specified by the setQueryTimeout method has been exceeded and has at
      *                             least attempted to cancel the currently running Statement
      */
-    public void createChatMessageTable() throws SQLException {
-        String query = "CREATE TABLE IF NOT EXISTS chatmessage (" +
-                            "id integer PRIMARY KEY," +
-                            "user integer NOT NULL," +
-                            "time integer NOT NULL," +
-                            "message text NOT NULL" +
-                       ");";
-        Statement statement = connection.createStatement();
-        statement.execute(query);
-    }
+    abstract public void createChatMessageTable() throws SQLException;
 
     /**
      * Reads all the users data from the user table of the SQLite database and
@@ -100,7 +91,7 @@ public class SQLDatabase implements Database {
         try {
             PreparedStatement statement = connection.prepareStatement(
                     "SELECT chatmessage.*, user.username from chatmessage, user " +
-                            "WHERE user.id == chatmessage.user;"
+                            "WHERE user.id = chatmessage.user;"
             );
             executeQueryChatMessages(statement, messages);
         } catch (SQLException error) {
@@ -137,9 +128,9 @@ public class SQLDatabase implements Database {
             PreparedStatement statement = connection.prepareStatement(
                     "SELECT * FROM (" +
                             "SELECT chatmessage.*, user.username from chatmessage, user " +
-                            "WHERE user.id == chatmessage.user " +
+                            "WHERE user.id = chatmessage.user " +
                             "ORDER BY chatmessage.id DESC LIMIT ? " +
-                            ") ORDER BY id ASC;"
+                            ") as res ORDER BY id ASC;"
             );
             statement.setInt(1, num);
             executeQueryChatMessages(statement, messages);
@@ -163,7 +154,8 @@ public class SQLDatabase implements Database {
             statement.setLong(1, message.getTimestamp().getTime());
             statement.setString(2, message.getMessage());
             statement.setString(3, message.getUserName());
-            statement.executeUpdate();
+            if(statement.executeUpdate() == 0)
+                throw new SQLException("User " + message.getUserName() + " does not exist.");
         } catch (SQLException error) {
             error.printStackTrace();
         }
@@ -269,6 +261,7 @@ public class SQLDatabase implements Database {
             statement.setString(1, userName);
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
             if (resultSet.getInt(1) == 1) success = true;
         } catch (SQLException error) {
             error.printStackTrace();
@@ -294,6 +287,7 @@ public class SQLDatabase implements Database {
                 statement.setString(1, userName);
                 statement.setString(2, password);
                 ResultSet resultSet = statement.executeQuery();
+                resultSet.next();
                 user = new User(
                         resultSet.getString("username"),
                         resultSet.getString("fullname"),

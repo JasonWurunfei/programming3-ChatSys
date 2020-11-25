@@ -13,7 +13,6 @@ public class SQLiteDatabase extends SQLDatabase {
         this.connection = DriverManager.getConnection("jdbc:sqlite:" + DBPath);
         this.createChatMessageTable();
         this.createUserTable();
-
         this.addDefaultUsers();
     }
 

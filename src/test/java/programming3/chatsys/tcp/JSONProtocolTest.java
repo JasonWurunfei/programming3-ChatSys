@@ -1,5 +1,6 @@
 package programming3.chatsys.tcp;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +12,9 @@ import programming3.chatsys.data.User;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,6 +104,21 @@ class JSONProtocolTest {
         assertEquals("johndoe", obj.getString("username"));
         assertEquals(1604656487868L, obj.getLong("timestamp"));
         assertEquals("This is a chat message", obj.getString("message"));
+    }
+
+    @Test
+    void testFormatChatMessages() {
+        ChatMessage m1 = new ChatMessage(0, "johndoe", new Timestamp(0),"message1");
+        ChatMessage m2 = new ChatMessage(1, "johndoe", new Timestamp(1),"message2");
+        ChatMessage m3 = new ChatMessage(2, "johndoe", new Timestamp(2),"message3");
+
+        List<ChatMessage> messages = Arrays.asList(m1, m2, m3);
+        JSONArray array = protocol.formatChatMessages(messages);
+        JSONArray expectedArray = new JSONArray(
+                "[{\"id\":0,\"message\":\"message1\",\"username\":\"johndoe\",\"timestamp\":0}," +
+                        "{\"id\":1,\"message\":\"message2\",\"username\":\"johndoe\",\"timestamp\":1}," +
+                        "{\"id\":2,\"message\":\"message3\",\"username\":\"johndoe\",\"timestamp\":2}]");
+        assertEquals(expectedArray.toString(), array.toString());
     }
 
     @Test

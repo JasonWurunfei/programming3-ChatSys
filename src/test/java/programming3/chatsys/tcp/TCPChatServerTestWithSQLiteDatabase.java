@@ -28,26 +28,6 @@ class TCPChatServerTestWithSQLiteDatabase {
     final int PORT = 1040;
     final String HOST = "localhost";
 
-    private void createTable(Connection connection) throws SQLException {
-        String query = "CREATE TABLE IF NOT EXISTS user (" +
-                "id integer PRIMARY KEY," +
-                "username text NOT NULL UNIQUE," +
-                "fullname text NOT NULL," +
-                "password text NOT NULL," +
-                "last_read_id integer DEFAULT 0" +
-                ");";
-        Statement statement = connection.createStatement();
-        statement.execute(query);
-        query = "CREATE TABLE IF NOT EXISTS chatmessage (" +
-                "id integer PRIMARY KEY," +
-                "user integer NOT NULL," +
-                "time integer NOT NULL," +
-                "message text NOT NULL" +
-                ");";
-        statement = connection.createStatement();
-        statement.execute(query);
-    }
-
     private void send(String message) throws IOException {
         writer.write(message + "\r\n");
         writer.flush();
@@ -57,7 +37,6 @@ class TCPChatServerTestWithSQLiteDatabase {
     void setUp() throws IOException, SQLException {
         db = new SQLiteDatabase(DBPath);
         connection = DriverManager.getConnection("jdbc:sqlite:" + DBPath);
-        this.createTable(connection);
         // add unread messages
         PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO chatmessage(user, time, message) SELECT id, ?, ? FROM user WHERE username = ?;"

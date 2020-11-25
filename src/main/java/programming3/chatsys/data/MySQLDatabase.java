@@ -17,7 +17,6 @@ public class MySQLDatabase extends SQLDatabase {
         String query = "CREATE DATABASE IF NOT EXISTS " + databaseName + ";";
         Statement statement = connection.createStatement();
         statement.execute(query);
-
         statement.execute("use " + databaseName + ";");
 
         this.createChatMessageTable();

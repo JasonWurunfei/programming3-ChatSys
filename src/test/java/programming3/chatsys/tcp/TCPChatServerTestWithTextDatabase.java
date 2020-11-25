@@ -20,11 +20,13 @@ class TCPChatServerTestWithTextDatabase {
     Socket client;
     Thread serverThread;
     TCPChatServer server;
+
     SecureTextDatabase db;
     BufferedWriter writer;
     BufferedReader reader;
     File userDB = new File(".\\user_test.db");
     File chatMessageDB = new File(".\\message_test.db");
+
     final int PORT = 1040;
     final String HOST = "localhost";
 

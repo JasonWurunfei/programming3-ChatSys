@@ -1,5 +1,6 @@
 package programming3.chatsys.tcp;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -10,6 +11,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * A class that is used to format and parse JSON objects
@@ -135,7 +137,7 @@ public class JSONProtocol {
     /**
      * Creates a JSONObject describing a ChatMessage object based on the given ChatMessage object
      * @param message ChatMessage object that is about to be converted into JSONObject
-     * @return obj formatted User object
+     * @return obj formatted ChatMessage object
      */
     public JSONObject formatChatMessage(ChatMessage message) {
         return this.formatChatMessage(
@@ -144,6 +146,19 @@ public class JSONProtocol {
                 message.getUserName(),
                 message.getTimestamp().getTime()
         );
+    }
+
+    /**
+     * Creates a JSONObject describing a array of ChatMessage objects
+     * @param messages ChatMessage list object that is about to be converted into JSONArray
+     * @return obj formatted ChatMessage objects
+     */
+    public JSONArray formatChatMessages(List<ChatMessage> messages) {
+        JSONArray array = new JSONArray();
+        for (ChatMessage message : messages) {
+            array.put(formatChatMessage(message));
+        }
+        return array;
     }
 
     /**

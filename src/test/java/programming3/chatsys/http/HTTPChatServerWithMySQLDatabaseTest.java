@@ -208,7 +208,7 @@ class HTTPChatServerWithMySQLDatabaseTest {
 //                "{\"username\":\"" + username + "\"," +
 //                        "\"fullname\":\"" + fullname + "\"," +
 //                        "\"password\":\"" + password + "\"}");
-//        assertEquals("Register success", response);
+//        assertEquals("{\"type\":\"OK\"}", response);
 //        User user = db.readUsers().get(username);
 //        assertEquals(user.getUserName(), username);
 //        assertEquals(user.getFullName(), fullname);
@@ -334,7 +334,7 @@ class HTTPChatServerWithMySQLDatabaseTest {
 //    void testPostMessage() throws IOException {
 //        String response = HTTPRequest("/message/?username=user_2&password=PassWord", "POST",
 //                "{\"message\":\"Hello world!\"}");
-//        assertEquals("OK", response);
+//        assertEquals("{\"type\":\"OK\"}", response);
 //        List<ChatMessage> messages = db.readMessages();
 //        ChatMessage message = messages.get(messages.size()-1);
 //        assertEquals("user_2", message.getUserName());

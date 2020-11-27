@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 
+/**
+ * Represents an HTTP chat server
+ * @author Wu Runfei (Jason SE181)
+ */
 public class HTTPChatServer {
     private Database database;
     private HttpServer server;
@@ -18,6 +22,9 @@ public class HTTPChatServer {
         this.initContexts();
     }
 
+    /**
+     * Initialize contexts
+     */
     private void initContexts() {
         this.server.createContext("/recent/", new RecentMessagesHandler(database));
         this.server.createContext("/unread/", new UnreadMessagesHandler(database));
@@ -25,12 +32,18 @@ public class HTTPChatServer {
         this.server.createContext("/user/", new RegisterUserHandler(database));
     }
 
+    /**
+     * Starts the server
+     */
     public void start() {
         this.server.start();
         System.out.println("[INFO]: Server started at " +
                 this.server.getAddress() + " and ready for connection ...");
     }
 
+    /**
+     * Stops the server
+     */
     public void stop() {
         this.server.stop(0);
         System.out.println("[INFO]: Server stopped.");

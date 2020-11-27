@@ -36,7 +36,7 @@ public class RegisterUserHandler extends AbstractHandler {
 
                 boolean is_success = database.register(new User(username, fullname, password));
                 if (is_success) {
-                    sendResponse(httpExchange, 201, "Register success");
+                    sendOk(httpExchange, 201);
                 } else {
                     sendError(httpExchange, 400, "This user name is taken");
                 }

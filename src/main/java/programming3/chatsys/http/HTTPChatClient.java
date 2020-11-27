@@ -4,7 +4,20 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Represents an HTTP chat client
+ * @author Wu Runfei (Jason SE181)
+ */
 public class HTTPChatClient {
+
+    /**
+     * Reused from Programming3.topic7.example1.SimpleHTTPClient
+     * Sends a HTTP request and print the response
+     * @param address URL address
+     * @param method HTTP request method type
+     * @param query query body
+     * @author Maelick Claes (maelick.claes@oulu.fi)
+     */
     public static void HTTPRequest(String address, String method, String query) throws IOException {
         System.out.println("Sending request to "+method+" "+address+"\nBody: "+query);
         URL url = new URL(address);

@@ -29,11 +29,8 @@ public class PostMessageHandler extends AbstractHandler {
                     if (message.equals(""))
                         {sendError(httpExchange, 400, "message field not provided"); return;}
 
-                    database.addMessage(
-                            query.get("username"),
-                            message
-                    );
-                    sendResponse(httpExchange, 201, "OK");
+                    database.addMessage(query.get("username"), message);
+                    sendOk(httpExchange, 201);
                 } else {
                     sendError(httpExchange, 401, "Invalid username or password");
                 }

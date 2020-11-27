@@ -112,15 +112,27 @@ public abstract class AbstractHandler implements HttpHandler{
      * @author Maelick Claes (maelick.claes@oulu.fi)
      */
     protected void sendResponse(HttpExchange exchange, int code, String response) throws IOException {
-        System.out.println("[REPLY]: " + code + " to " + exchange.getRemoteAddress());
-        exchange.sendResponseHeaders(code, response.getBytes(StandardCharsets.UTF_8).length);
         if (!exchange.getRequestMethod().equals("HEAD")) {
+            System.out.println("[REPLY]: " + code + " to " + exchange.getRemoteAddress());
+            exchange.getResponseHeaders().add("Content-type", "text/json");
+            exchange.sendResponseHeaders(code, response.getBytes(StandardCharsets.UTF_8).length);
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(exchange.getResponseBody(), StandardCharsets.UTF_8));
             writer.write(response);
             writer.flush();
             writer.close();
+        } else {
+            exchange.sendResponseHeaders(405, -1);
         }
+    }
+
+    /**
+     * Send client a OK message in JSON format
+     * @param exchange HttpExchange object
+     * @param code response code
+     */
+    protected void sendOk(HttpExchange exchange, int code) throws IOException {
+        sendResponse(exchange, code,"{\"type\":\"OK\"}");
     }
 
     /**

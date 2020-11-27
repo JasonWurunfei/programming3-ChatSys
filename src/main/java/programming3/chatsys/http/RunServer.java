@@ -33,9 +33,9 @@ public class RunServer {
         // run(8080, "testMessage.db", "testUser.db");
 
         // run with SQLite database
-        // run(8080, "data/testDB.sqlite");
+         run(8080, "data/testDB.sqlite");
 
         // run with MySQL database
-        run(8080, "localhost", 3306, "root", "123456", "chatsys");
+        //run(8080, "localhost", 3306, "root", "123456", "chatsys");
     }
 }

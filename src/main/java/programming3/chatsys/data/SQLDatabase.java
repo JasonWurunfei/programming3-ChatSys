@@ -100,6 +100,10 @@ public abstract class SQLDatabase implements Database {
         return messages;
     }
 
+    /**
+     * Executes query that read ChatMessages from the database
+     * and add the result to the output ChatMessage list
+     */
     private void executeQueryChatMessages(
             PreparedStatement statement, List<ChatMessage> output) throws SQLException {
         ResultSet result = statement.executeQuery();

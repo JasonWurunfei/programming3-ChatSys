@@ -449,4 +449,18 @@ class HTTPChatServerWithMySQLDatabaseTest {
 //        assertEquals("{\"error\":\"Method not allowed\"}", response);
 //        assertEquals(405, responseCode);
 //    }
+//    @Test
+//    void testUnknownRequest() throws IOException {
+//        String response = HTTPRequest("/2", "GET", null);
+//        assertEquals("<h1>404 Not Found</h1>No context found for request", response);
+//        assertEquals(404, responseCode);
+//
+//        response = HTTPRequest("/abc", "GET", null);
+//        assertEquals("<h1>404 Not Found</h1>No context found for request", response);
+//        assertEquals(404, responseCode);
+//
+//        response = HTTPRequest("/hello/world", "GET", null);
+//        assertEquals("<h1>404 Not Found</h1>No context found for request", response);
+//        assertEquals(404, responseCode);
+//    }
 }

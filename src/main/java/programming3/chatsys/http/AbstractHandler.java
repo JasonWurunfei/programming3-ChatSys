@@ -31,7 +31,11 @@ public abstract class AbstractHandler implements HttpHandler{
      */
     protected JSONObject readJSON (InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        return new JSONObject(reader.readLine());
+        String data = null;
+        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+            data = data == null ? line : data + line;
+        }
+        return new JSONObject(data);
     }
 
     /**

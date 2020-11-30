@@ -30,10 +30,10 @@ public class RunServer {
 
     public static void main(String[] args) throws IOException, SQLException {
         // run with text database
-        // run(8080, "testMessage.db", "testUser.db");
+        run(8080, "data/messages.db", "data/users.db");
 
         // run with SQLite database
-         run(8080, "data/chatsys.sqlite");
+        //run(8080, "data/chatsys.sqlite");
 
         // run with MySQL database
         //run(8080, "localhost", 3306, "root", "123456", "chatsys");
